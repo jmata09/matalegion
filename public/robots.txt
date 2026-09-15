@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: uncomment and set your real domain once the custom domain is live.
+# Sitemap: https://yourdomain.org/sitemap.xml
