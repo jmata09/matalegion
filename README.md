@@ -19,8 +19,15 @@ public/            ← everything Cloudflare serves. This is the deploy folder.
   favicon.svg        browser tab icon
   robots.txt         search engine instructions
   _headers           security headers, applied at Cloudflare's edge
+  sitemap.xml        search engine index
 drafts/            ← NOT deployed. A fuller multi-section homepage for later.
+scripts/
+  validate.py        pre-deploy checks (runs in CI and locally)
+  cf-setup.sh        one-time Cloudflare setup via API
+.github/workflows/
+  deploy.yml         validate on every PR, deploy on push to main
 docs/ROADMAP.md    ← donations, back office, and compliance plan
+docs/CLOUDFLARE-API.md ← API tokens, scopes, and scripted setup
 ```
 
 **Why a `public/` folder?** Cloudflare only publishes what's inside it. Anything outside —
@@ -63,6 +70,18 @@ absolute paths like `/styles.css`, so the page appears unstyled. A local server 
 paths resolve exactly as they will in production.
 
 ---
+
+## Two routes to a live site
+
+**Dashboard** (below) — click through it once, no tokens. Best if this is a one-off.
+
+**Scripted** ([`docs/CLOUDFLARE-API.md`](docs/CLOUDFLARE-API.md)) — API token plus
+`scripts/cf-setup.sh`, and GitHub Actions deploys on every push. More setup up front,
+but it removes the dashboard from the loop permanently and is the same mechanism the
+Workers and D1 work will need later.
+
+Either way one step is yours alone: **changing nameservers at your registrar.** No API
+shortens that, and it is the slow part.
 
 ## Step-by-step: getting this on your domain
 
@@ -174,9 +193,14 @@ git commit -m "Update landing page copy"
 git push
 ```
 
-Cloudflare rebuilds automatically on every push to the production branch — usually live in
-under 30 seconds. Pushes to other branches get their own preview URL, so you can look at a
-change before it becomes public.
+Every push to `main` runs `scripts/validate.py` first, then deploys — usually live in
+under 30 seconds. Pull requests run validation only and never touch the live site.
+
+Run the same checks locally before pushing:
+
+```bash
+python3 scripts/validate.py
+```
 
 **Rolling back:** Pages project → **Deployments** → find the last good one → **Rollback**.
 Every deployment is kept, so a bad change is never more than two clicks from undone.

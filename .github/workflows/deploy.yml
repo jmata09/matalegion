@@ -1,0 +1,52 @@
+name: Validate & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: the workflow only ever needs to read the repo.
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check markup, assets and placeholders
+        run: python3 scripts/validate.py
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: validate
+    # Only deploy real pushes to main. Pull requests stop at validation so an
+    # unreviewed branch can never reach the live domain.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be set as repository secrets."
+            echo "See docs/CLOUDFLARE-API.md for the exact token scopes required."
+            exit 1
+          fi
+          npx --yes wrangler@4 pages deploy public \
+            --project-name=charliescalltoaction \
+            --branch=main \
+            --commit-dirty=true
