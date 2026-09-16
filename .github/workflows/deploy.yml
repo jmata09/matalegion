@@ -10,6 +10,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PROJECT: charliescalltoaction
+
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
@@ -36,17 +39,60 @@ jobs:
         with:
           node-version: 22
 
+      - name: Check secrets are present
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          missing=0
+          [ -z "$CLOUDFLARE_API_TOKEN" ]  && { echo "::error::CLOUDFLARE_API_TOKEN is not set."; missing=1; }
+          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && { echo "::error::CLOUDFLARE_ACCOUNT_ID is not set."; missing=1; }
+          if [ "$missing" = "1" ]; then
+            echo "Add them under Settings > Secrets and variables > Actions."
+            echo "Required token scope: Account > Cloudflare Pages > Edit (see docs/CLOUDFLARE-API.md)."
+            exit 1
+          fi
+
+      # wrangler cannot create a Pages project non-interactively, so it errors out
+      # if one does not exist. Create it here first; this no-ops once it is there.
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          base="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' "$base/$PROJECT" \
+                   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+          if [ "$code" = "200" ]; then
+            echo "Pages project '$PROJECT' already exists."
+          elif [ "$code" = "404" ]; then
+            echo "Pages project '$PROJECT' not found - creating it."
+            curl -sS -X POST "$base" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "{\"name\":\"$PROJECT\",\"production_branch\":\"main\"}" \
+              > create.json
+            python3 - <<'CHECK'
+          import json, sys
+          with open("create.json") as fh:
+              data = json.load(fh)
+          if not data.get("success"):
+              msgs = "; ".join(e.get("message", "?") for e in data.get("errors", []))
+              print("::error::Could not create Pages project: " + (msgs or "unknown error"))
+              sys.exit(1)
+          print("Created.")
+          CHECK
+          else
+            echo "::error::Unexpected HTTP $code from the Cloudflare API. Check the token scope."
+            exit 1
+          fi
+
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be set as repository secrets."
-            echo "See docs/CLOUDFLARE-API.md for the exact token scopes required."
-            exit 1
-          fi
           npx --yes wrangler@4 pages deploy public \
-            --project-name=charliescalltoaction \
-            --branch=main \
-            --commit-dirty=true
+            --project-name="$PROJECT" \
+            --branch=main
