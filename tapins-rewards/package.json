@@ -1,0 +1,30 @@
+{
+  "name": "aces-clubhouse-rewards",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Ace's Clubhouse Rewards - pitch prototype for Tap Ins at the Greenhouse",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "dev:worker": "npm run build && wrangler dev --local",
+    "deploy": "npm run build && wrangler deploy",
+    "db:local": "wrangler d1 execute tapins-rewards --local --file=schema.sql",
+    "db:remote": "wrangler d1 execute tapins-rewards --remote --file=schema.sql",
+    "build:demo": "VITE_DEMO=1 vite build --outDir dist-demo",
+    "preview:demo": "npm run build:demo && vite preview --outDir dist-demo"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.0",
+    "wrangler": "^4.132.0"
+  }
+}

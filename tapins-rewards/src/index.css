@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* Brand tokens taken from the official Tap Ins assets:
+   PANTONE 341 C green and PANTONE 116 C yellow, the two spot colours in the
+   supplied vector logo. The rest are tints and shades built from those two. */
+@theme {
+  --color-brand-green: #007A53;
+  --color-brand-green-tile: #007B54;
+  --color-brand-green-deep: #00432D;
+  --color-brand-green-mid: #009063;
+  --color-brand-green-wash: #E3F0EA;
+
+  --color-brand-yellow: #FFCD00;
+  --color-brand-yellow-soft: #FFE585;
+  --color-brand-yellow-wash: #FFF8DC;
+
+  --color-ink: #2E2A25;
+  --color-ink-soft: #6B655C;
+  --color-cream: #FBF8F0;
+  --color-rule: #E4DFD3;
+
+  /* Tier identities escalate within the two-colour system: unearned cream,
+     then yellow, then green, then the deep green jacket with yellow trim. */
+  --color-tier-rookie: #EDE8DA;
+  --color-tier-member: #FFCD00;
+  --color-tier-circle: #007A53;
+  --color-tier-jacket: #00432D;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Archivo", system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fraunces stands in for New Kansas, the brand's primary serif. */
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 120;
+  letter-spacing: -0.02em;
+}
+
+.nums { font-variant-numeric: tabular-nums; }
+
+/* Halftone, lifted from the mascot's printing style. Used sparingly on deep
+   green panels so they read as printed matter rather than flat UI. */
+.halftone {
+  background-image: radial-gradient(currentColor 1px, transparent 1.4px);
+  background-size: 6px 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand-yellow);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
