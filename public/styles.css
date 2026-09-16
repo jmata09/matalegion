@@ -1,0 +1,213 @@
+/* ==========================================================================
+   Charlie's Call to Action — coming-soon landing page
+   One screen, no build step, no external requests.
+   ========================================================================== */
+
+/* ---------- Design tokens ---------- */
+:root {
+  --green-900: #0b2b2c;
+  --green-800: #0f3d3e;
+  --green-700: #17585a;
+  --green-100: #dcebe8;
+
+  --amber-600: #b76e15;
+  --amber-500: #d98324;
+  --amber-300: #f0b967;
+  --amber-100: #fbeed9;
+
+  --ink:       #14201f;
+  --ink-soft:  #465654;
+  --ink-faint: #6d807d;
+  --line:      #e0e6e3;
+  --surface:   #ffffff;
+
+  --accent:     var(--amber-500);
+  --accent-ink: var(--amber-600);
+  --brand:      var(--green-800);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, "Noto Sans", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink:       #e8efec;
+    --ink-soft:  #a6b7b3;
+    --ink-faint: #7d8f8b;
+    --line:      #22322f;
+    --surface:   #0b1412;
+    --green-100: #113a38;
+    --amber-100: #2a1f10;
+    --accent-ink: var(--amber-300);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ink:       #e8efec;
+  --ink-soft:  #a6b7b3;
+  --ink-faint: #7d8f8b;
+  --line:      #22322f;
+  --surface:   #0b1412;
+  --green-100: #113a38;
+  --amber-100: #2a1f10;
+  --accent-ink: var(--amber-300);
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+
+  /* Ambient wash. Lives on <body> so it covers the whole viewport --
+     on the width-capped .page wrapper it would cut off at a hard edge. */
+  background:
+    radial-gradient(1000px 560px at 12% -8%, color-mix(in srgb, var(--green-100) 55%, transparent), transparent 62%),
+    radial-gradient(760px 460px at 88% 4%, color-mix(in srgb, var(--amber-100) 70%, transparent), transparent 58%),
+    var(--surface);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+svg { display: block; }
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Page shell ---------- */
+.page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 40px;
+  padding: 32px 16px;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+/* ---------- Brand ---------- */
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark { width: 40px; height: 40px; flex: none; }
+.bm-bg { fill: var(--brand); }
+.bm-fg { fill: var(--amber-300); }
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: -0.015em;
+}
+
+/* ---------- Hero ---------- */
+.hero { align-self: center; padding-block: 8px; }
+
+.eyebrow {
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 10.5vw, 4.6rem);
+  line-height: 1.04;
+  letter-spacing: -0.038em;
+  font-weight: 700;
+  text-wrap: balance;
+  margin-bottom: 24px;
+}
+
+.lede {
+  font-size: clamp(1.06rem, 2.4vw, 1.24rem);
+  color: var(--ink-soft);
+  max-width: 46ch;
+  text-wrap: pretty;
+  margin-bottom: 30px;
+}
+
+/* ---------- Status pill ---------- */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: .9rem;
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  padding: 7px 16px 7px 13px;
+  border-radius: 999px;
+  margin-bottom: 30px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%      { opacity: .45; transform: scale(.82); }
+}
+
+/* ---------- Button ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 30px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 650;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn:hover {
+  background: var(--green-700);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -12px rgba(15,61,62,.7);
+}
+.btn:active { transform: translateY(0); }
+
+/* ---------- Footer ---------- */
+.foot {
+  font-size: .84rem;
+  color: var(--ink-faint);
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  text-wrap: pretty;
+}
+
+/* ---------- Motion preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .page { gap: 32px; padding-block: 26px; }
+  body { background-attachment: scroll; }  /* fixed attachment is janky on iOS */
+  .btn { width: 100%; }
+}
