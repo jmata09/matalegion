@@ -39,26 +39,64 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check secrets are present
+      - name: Resolve and check credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Repository *variables* are stored and displayed in plain text, so the
+          # token's value is never read here - only whether one exists, as a
+          # boolean, to diagnose an entry put in the wrong tab. The account ID is
+          # not sensitive, so it is accepted from either place.
+          VAR_TOKEN_PRESENT: ${{ vars.CLOUDFLARE_API_TOKEN != '' }}
+          VAR_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           missing=0
-          [ -z "$CLOUDFLARE_API_TOKEN" ]  && { echo "::error::CLOUDFLARE_API_TOKEN is not set."; missing=1; }
-          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && { echo "::error::CLOUDFLARE_ACCOUNT_ID is not set."; missing=1; }
+
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            missing=1
+            if [ "$VAR_TOKEN_PRESENT" = "true" ]; then
+              echo "::error::CLOUDFLARE_API_TOKEN is under Variables, not Secrets."
+              echo "  Variables are stored and shown in plain text, so that token must be"
+              echo "  treated as exposed: delete the variable, roll the token in Cloudflare,"
+              echo "  then add the new one under the Secrets tab."
+            else
+              echo "::error::CLOUDFLARE_API_TOKEN is not set."
+            fi
+          fi
+
+          account_id="$CLOUDFLARE_ACCOUNT_ID"
+          if [ -z "$account_id" ] && [ -n "$VAR_ACCOUNT_ID" ]; then
+            echo "Using CLOUDFLARE_ACCOUNT_ID from repository variables (it is not sensitive)."
+            account_id="$VAR_ACCOUNT_ID"
+          fi
+          if [ -z "$account_id" ]; then
+            missing=1
+            echo "::error::CLOUDFLARE_ACCOUNT_ID is not set."
+          fi
+
           if [ "$missing" = "1" ]; then
-            echo "Add them under Settings > Secrets and variables > Actions."
-            echo "Required token scope: Account > Cloudflare Pages > Edit (see docs/CLOUDFLARE-API.md)."
+            echo ""
+            echo "Checklist - all four must be true:"
+            echo "  1. Added to THIS repository (jmata09/matalegion), not another one"
+            echo "  2. Under Settings > Secrets and variables > Actions"
+            echo "  3. On the 'Secrets' tab - NOT 'Variables'"
+            echo "  4. As a 'Repository secret' - NOT an 'Environment secret'"
+            echo "     (this workflow declares no environment, so environment secrets"
+            echo "      are never passed to it)"
+            echo ""
+            echo "Names are case-sensitive and must match exactly."
+            echo "Token scope: Account > Cloudflare Pages > Edit (see docs/CLOUDFLARE-API.md)."
             exit 1
           fi
+
+          echo "CLOUDFLARE_ACCOUNT_ID=$account_id" >> "$GITHUB_ENV"
+          echo "Credentials present."
 
       # wrangler cannot create a Pages project non-interactively, so it errors out
       # if one does not exist. Create it here first; this no-ops once it is there.
       - name: Ensure Pages project exists
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           base="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects"
@@ -91,7 +129,6 @@ jobs:
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@4 pages deploy public \
             --project-name="$PROJECT" \
