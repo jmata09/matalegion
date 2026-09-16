@@ -46,10 +46,10 @@ still needs your real information:
 
 | Where | What to replace |
 |---|---|
-| `index.html` — "Get in touch" link | `info@example.org` → your real address |
+| `index.html` — "Get in touch" link | Set up Email Routing so `info@charliescalltoaction.org` works |
 | `index.html` — footer | Add your EIN |
-| `index.html` — `og:` meta tags | Your real domain, and an `og-image.png` (1200×630) |
-| `robots.txt` | Uncomment the `Sitemap:` line with your domain |
+| `index.html` — `og:image` | Add an `og-image.png` (1200×630) for link previews |
+| `_headers`, `robots.txt`, `sitemap.xml` | Done — domain already filled in |
 
 To preview locally before pushing:
 
@@ -116,8 +116,8 @@ than mid-DNS-change.
 In the Pages project → **Custom domains** → **Set up a domain**.
 
 Add both, one at a time:
-- `yourdomain.org` (the apex/root)
-- `www.yourdomain.org`
+- `charliescalltoaction.org` (the apex/root)
+- `www.charliescalltoaction.org`
 
 Cloudflare creates the DNS records itself and provisions a TLS certificate — typically a
 minute or two, occasionally ~15.
@@ -149,7 +149,7 @@ worth waiting until the real site is settled.
 
 ### Step 5 — Set up email on the domain
 
-Domain → **Email** → **Email Routing**. Create `info@yourdomain.org` and forward it to
+Domain → **Email** → **Email Routing**. Create `info@charliescalltoaction.org` and forward it to
 your personal inbox. Then update the "Get in touch" link in `public/index.html`.
 
 **Why:** it's free, it takes two minutes, and a nonprofit asking for trust (and later,
