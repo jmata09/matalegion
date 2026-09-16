@@ -74,7 +74,7 @@ function Gate({ onOpen }) {
 }
 
 export default function App() {
-  const [open, setOpen] = useState(Boolean(api.getClubCode()))
+  const [open, setOpen] = useState(api.DEMO || Boolean(api.getClubCode()))
   const [active, setActive] = useState('card')
 
   if (!open) return <Gate onOpen={() => setOpen(true)} />
@@ -86,7 +86,14 @@ export default function App() {
       <header className="bg-brand-green-tile text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
           <img src="./tapins-lockup.png" alt="Tap Ins at the Greenhouse" width="180" height="90" className="h-12 w-auto" />
-          <p className="mr-auto font-display text-xl leading-none">Ace&rsquo;s Clubhouse Rewards</p>
+          <div className="mr-auto">
+            <p className="font-display text-xl leading-none">Ace&rsquo;s Clubhouse Rewards</p>
+            {api.DEMO && (
+              <p className="mt-1 text-sm text-white/70">
+                Demo &mdash; invented members, nothing saved. Reload to reset.
+              </p>
+            )}
+          </div>
         </div>
         <nav className="mx-auto max-w-7xl px-5" aria-label="Sections">
           <ul className="flex flex-wrap gap-1">
@@ -117,7 +124,9 @@ export default function App() {
 
       <footer className="border-t border-rule">
         <div className="mx-auto max-w-7xl px-5 py-6 text-sm text-ink-soft">
-          Balances are live. Automated messages are example copy only &mdash; nothing is sent yet.
+          {api.DEMO
+            ? 'Every member here is invented. Record a visit and redeem rewards freely \u2014 nothing is saved, and nothing is sent.'
+            : 'Balances are live. Automated messages are example copy only \u2014 nothing is sent yet.'}
         </div>
       </footer>
     </div>

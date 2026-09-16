@@ -11,7 +11,9 @@
     "dev:worker": "npm run build && wrangler dev --local",
     "deploy": "npm run build && wrangler deploy",
     "db:local": "wrangler d1 execute tapins-rewards --local --file=schema.sql",
-    "db:remote": "wrangler d1 execute tapins-rewards --remote --file=schema.sql"
+    "db:remote": "wrangler d1 execute tapins-rewards --remote --file=schema.sql",
+    "build:demo": "VITE_DEMO=1 vite build --outDir dist-demo",
+    "preview:demo": "npm run build:demo && vite preview --outDir dist-demo"
   },
   "dependencies": {
     "react": "^19.3.0",

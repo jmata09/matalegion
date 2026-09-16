@@ -78,6 +78,25 @@ npm run dev:worker               # http://localhost:8787
 `npm run dev` alone runs the front end only — the API will 404. Use
 `dev:worker` for anything involving data.
 
+## Seeing it without a backend
+
+There is a demo build that runs the whole app against an in-memory store, so
+it can be shared as a link with nothing deployed behind it:
+
+```bash
+npm run preview:demo
+```
+
+Ten invented members spread across all four tiers. Recording a visit and
+redeeming a reward both work and move the balance — the demo applies the same
+rules from `shared/program.js` that the Worker does, so a $68 mini golf round
+on a 2x night is worth 272 points either way. Nothing persists; reloading
+resets it.
+
+The demo module is imported lazily and only when `VITE_DEMO=1`, so its
+invented members are dropped from the production bundle rather than shipping
+alongside real ones.
+
 ## Deploying
 
 The D1 database **already exists** and its tables are **already created**
