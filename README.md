@@ -1,31 +1,42 @@
-# Charlie's Call to Action
+# The Matalegion Group — thematalegion.com
 
-Landing page for charliescalltoaction.org.
+Public website for The Matalegion Group: hospitality service coaching and task force leadership for hotels.
 
-`index.html` is the whole site — one file, no build step, no dependencies.
-Edit it in any text editor and push; that's the entire workflow.
+Plain HTML and CSS. No build step and no dependencies. Edit a file, push, and Cloudflare publishes it.
 
-## Putting it online
+## What's in here
 
-In the Cloudflare dashboard:
+| File | Page |
+|---|---|
+| `index.html` | Home (`/`) |
+| `how-we-help.html` | How We Help (`/how-we-help`) |
+| `who-we-are.html` | Who We Are (`/who-we-are`) |
+| `contact.html` | Contact (`/contact`) |
+| `404.html` | Shown for any address that doesn't exist |
+| `styles.css` | Colors, fonts and layout for every page |
+| `favicon.svg` | Browser tab icon |
+| `_redirects` | Sends old addresses (`/services`, `/our-legacy`, `/portal`, …) to the right page |
 
-1. **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Pick `jmata09/matalegion`
-3. Framework preset: **None** · Build command: **leave empty** · Output directory: **leave empty**
-4. **Save and Deploy**
+The header and footer are copied into each page. If you change a menu item, phone number or email address, change it in **all four pages** (search the folder for the old text).
 
-That gives you a live `*.pages.dev` URL in about a minute.
+## Links to keep current
 
-## Adding the domain
+- **Schedule a Call** buttons go to the Microsoft Bookings "Fit Call" page:
+  `https://outlook.office.com/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled`
+- Email: `TheMatalegionGroup@Matalegion.com` · Phone: `+1 702.818.7003`
 
-Only after the site is live and looks right:
+## Putting it online (Cloudflare Pages)
 
-1. Cloudflare → **Add a domain** → `charliescalltoaction.org` → Free plan
-2. Cloudflare gives you two nameservers — set those at your registrar
-3. Wait for the domain to show **Active** (minutes, sometimes longer)
-4. In the Pages project → **Custom domains** → add `charliescalltoaction.org` and `www.charliescalltoaction.org`
+1. Cloudflare → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
+2. Pick `jmata09/matalegion`, production branch `main`
+3. Framework preset **None** · Build command **empty** · Output directory **empty**
+4. **Save and Deploy**. You get a `*.pages.dev` preview address.
 
-## Still to fill in
+## Moving thematalegion.com to this site
 
-- EIN in the footer
-- A real inbox for `info@charliescalltoaction.org` (Cloudflare → Email → Email Routing, free)
+The domain currently points at the older Worker `thematalegion-com`. Do this **only after** the preview looks right:
+
+1. Workers & Pages → `thematalegion-com` → **Settings → Domains & Routes** → remove `thematalegion.com` and `www.thematalegion.com`
+2. Pages project → **Custom domains** → add `thematalegion.com` and `www.thematalegion.com`
+
+Don't delete the old Worker. It holds the previous admin/CRM/portal code, which is useful reference for the back office rebuild. To roll back, swap the domains the other way.
