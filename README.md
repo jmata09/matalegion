@@ -1,6 +1,6 @@
 # The Matalegion Group: thematalegion.com
 
-Marketing site for The Matalegion Group: hotel service turnarounds, task force leadership and portfolio programs.
+Marketing site for The Matalegion Group: turnarounds, renovation and transformation, menu redesign, task force leadership and portfolio programs for hotels and restaurants.
 
 Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No build step.
 

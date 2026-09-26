@@ -141,7 +141,7 @@ function leadHtml(lead, request) {
     ["Name", lead.name],
     ["Email", `<a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a>`, true],
     ["Phone", lead.phone],
-    ["Hotel / company", lead.company],
+    ["Hotel / restaurant / company", lead.company],
     ["Role", lead.role],
     ["Needs", lead.need],
     ["Sent from", lead.page],
@@ -166,7 +166,7 @@ function confirmationHtml(lead) {
   return `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#111;max-width:560px">
 <p>Hi ${first},</p>
 <p>Thanks for reaching out about ${esc(lead.company)}. Your details are with our team and we'll be in touch within one business day.</p>
-<p>Want to move faster? <a href="${BOOKING_URL}" style="color:#111;font-weight:bold">Book a free 20-minute call here</a>.</p>
+<p>Want to move faster? <a href="${BOOKING_URL}" style="color:#111;font-weight:bold">Book a free 1-hour consultation here</a>.</p>
 <p>— The Matalegion Group<br>+1 702.818.7003 · <a href="https://thematalegion.com" style="color:#111">thematalegion.com</a></p>
 <p style="color:#888;font-size:13px">Operators first. Coaches by craft.</p></div>`;
 }
