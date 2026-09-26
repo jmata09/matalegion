@@ -163,10 +163,48 @@ function leadHtml(lead, request) {
 
 function confirmationHtml(lead) {
   const first = esc(lead.name.split(/\s+/)[0]);
-  return `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#111;max-width:560px">
-<p>Hi ${first},</p>
-<p>Thanks for reaching out about ${esc(lead.company)}. Your details are with our team and we'll be in touch within one business day.</p>
-<p>Want to move faster? <a href="${BOOKING_URL}" style="color:#111;font-weight:bold">Book a free 1-hour consultation here</a>.</p>
-<p>— The Matalegion Group<br>+1 702.818.7003 · <a href="https://thematalegion.com" style="color:#111">thematalegion.com</a></p>
-<p style="color:#888;font-size:13px">Operators first. Coaches by craft.</p></div>`;
+  const need = lead.need && lead.need !== "Not sure yet" ? esc(lead.need.toLowerCase()) : "";
+  const about = need ? `${esc(lead.company)} and ${need}` : esc(lead.company);
+  const step = (n, title, text) => `<tr>
+<td valign="top" style="padding:0 14px 16px 0;width:30px"><div style="width:28px;height:28px;border-radius:14px;background:#C8F35A;color:#0A0B0A;font:800 13px/28px Arial,sans-serif;text-align:center">${n}</div></td>
+<td valign="top" style="padding:0 0 16px;font:15px/1.5 Arial,sans-serif;color:#333"><strong style="color:#0A0B0A">${title}</strong><br>${text}</td></tr>`;
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#F2F2EF">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">Your details are with our team. We'll be in touch within one business day.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F2EF"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden">
+<tr><td style="background:#0A0B0A;padding:22px 32px">
+  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+  <td style="width:34px;height:34px;background:#C8F35A;border-radius:9px;text-align:center;font:900 19px/34px Arial,sans-serif;color:#0A0B0A">M</td>
+  <td style="padding-left:12px;font:900 17px Arial,sans-serif;letter-spacing:.06em;color:#ffffff">MATALEGION</td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:34px 32px 8px">
+  <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#6B8F12;text-transform:uppercase">We've got your details</p>
+  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#0A0B0A">Thanks, ${first}.</h1>
+  <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.</p>
+  <p style="margin:0 0 14px;font:800 15px Arial,sans-serif;color:#0A0B0A">What happens next</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+  ${step(1, "We review your details", "We look at what you've shared so the first conversation is useful, not generic.")}
+  ${step(2, "We reach out", "Within one business day, by email or phone, to find a time that suits you.")}
+  ${step(3, "Free 1-hour consultation", "We dig into what's going on and you leave knowing whether we can help, even if you never hire us.")}
+  </table>
+</td></tr>
+<tr><td style="padding:8px 32px 30px">
+  <p style="margin:0 0 14px;font:15px/1.5 Arial,sans-serif;color:#333">Rather not wait? Pick a time for your consultation now.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#C8F35A;border-radius:999px">
+  <a href="${BOOKING_URL}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#0A0B0A;text-decoration:none">Book your free 1-hour consultation &rarr;</a>
+  </td></tr></table>
+</td></tr>
+<tr><td style="padding:22px 32px;border-top:1px solid #ECECE8;font:14px/1.6 Arial,sans-serif;color:#555">
+  Questions in the meantime? Just reply to this email, or reach us at
+  <a href="mailto:info.desk@matalegion.com" style="color:#0A0B0A;font-weight:bold">info.desk@matalegion.com</a> or
+  <a href="tel:+17028187003" style="color:#0A0B0A;font-weight:bold">+1 702.818.7003</a>.
+</td></tr>
+<tr><td style="background:#0A0B0A;padding:20px 32px;font:13px/1.6 Arial,sans-serif;color:#A8A8A0">
+  <strong style="color:#ffffff">The Matalegion Group</strong><br>
+  Turnarounds, renovations and PIPs, menu redesign, leadership training and staffing for hotels and restaurants worldwide.<br>
+  <a href="https://thematalegion.com" style="color:#C8F35A;text-decoration:none">thematalegion.com</a> &nbsp;·&nbsp; <span style="color:#C8F35A">Operators first. Coaches by craft.</span>
+</td></tr>
+</table>
+</td></tr></table></body></html>`;
 }
