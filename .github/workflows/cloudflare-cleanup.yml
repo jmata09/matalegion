@@ -42,7 +42,7 @@ jobs:
           done
 
           echo "== Pages projects"
-          for p in $(curl -s "${auth[@]}" "$api/accounts/$acct/pages/projects?per_page=100" | jq -r '.result[]?.name'); do
+          for p in $(curl -s "${auth[@]}" "$api/accounts/$acct/pages/projects" | jq -r '.result[]?.name'); do
             for d in $(curl -s "${auth[@]}" "$api/accounts/$acct/pages/projects/$p/domains" | jq -r '.result[]?.name'); do
               del "pages domain $d ($p)" "$api/accounts/$acct/pages/projects/$p/domains/$d"
             done
