@@ -1,42 +1,51 @@
-# The Matalegion Group — thematalegion.com
+# The Matalegion Group: thematalegion.com
 
-Public website for The Matalegion Group: hospitality service coaching and task force leadership for hotels.
+Marketing site for The Matalegion Group: hotel service turnarounds, task force leadership and portfolio programs.
 
-Plain HTML and CSS. No build step and no dependencies. Edit a file, push, and Cloudflare publishes it.
+Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No build step.
 
-## What's in here
+## Files
 
-| File | Page |
+| File | What it is |
 |---|---|
-| `index.html` | Home (`/`) |
-| `how-we-help.html` | How We Help (`/how-we-help`) |
-| `who-we-are.html` | Who We Are (`/who-we-are`) |
-| `contact.html` | Contact (`/contact`) |
-| `404.html` | Shown for any address that doesn't exist |
-| `styles.css` | Colors, fonts and layout for every page |
-| `favicon.svg` | Browser tab icon |
-| `_redirects` | Sends old addresses (`/services`, `/our-legacy`, `/portal`, …) to the right page |
+| `index.html` | Home (long-form sales page) |
+| `services.html` | Services (`/services`) |
+| `about.html` | About (`/about`) |
+| `contact.html` | Contact (`/contact`) with booking link and form |
+| `thanks.html` | Shown after the form is sent |
+| `privacy.html` | Privacy note |
+| `404.html` | Page not found |
+| `styles.css` | All styling (colors are at the top) |
+| `site.js` | Sends the contact form without leaving the page |
+| `functions/api/contact.js` | Receives the form and emails it through Microsoft 365 |
+| `_redirects` | Sends old addresses to the right page |
 
-The header and footer are copied into each page. If you change a menu item, phone number or email address, change it in **all four pages** (search the folder for the old text).
+The header, footer and contact form are repeated in each page. If you change the menu, phone number, email or booking link, search all pages for the old text.
 
-## Links to keep current
+## Publishing
 
-- **Schedule a Call** buttons go to the Microsoft Bookings "Fit Call" page:
-  `https://outlook.office.com/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled`
-- Email: `TheMatalegionGroup@Matalegion.com` · Phone: `+1 702.818.7003`
+Every push is published by `.github/workflows/deploy.yml` to the Cloudflare Pages project `thematalegion`:
 
-## Putting it online (Cloudflare Pages)
+- push to `main` → the live site
+- push to any other branch → a preview link (shown in the Actions log)
 
-1. Cloudflare → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Pick `jmata09/matalegion`, production branch `main`
-3. Framework preset **None** · Build command **empty** · Output directory **empty**
-4. **Save and Deploy**. You get a `*.pages.dev` preview address.
+Needs the GitHub secret `CLOUDFLARE_API_TOKEN` (Account → Cloudflare Pages → Edit).
 
-## Moving thematalegion.com to this site
+## Contact form email (Microsoft 365)
 
-The domain currently points at the older Worker `thematalegion-com`. Do this **only after** the preview looks right:
+The form sends the lead to your mailbox and a confirmation to the visitor via Microsoft Graph. Add these GitHub secrets. The deploy copies them to Cloudflare:
 
-1. Workers & Pages → `thematalegion-com` → **Settings → Domains & Routes** → remove `thematalegion.com` and `www.thematalegion.com`
-2. Pages project → **Custom domains** → add `thematalegion.com` and `www.thematalegion.com`
+| Secret | Value |
+|---|---|
+| `GRAPH_TENANT_ID` | Microsoft Entra tenant ID |
+| `GRAPH_CLIENT_ID` | App registration's Application (client) ID |
+| `GRAPH_CLIENT_SECRET` | App registration's client secret |
+| `MAIL_FROM` | optional. Mailbox to send from (default `TheMatalegionGroup@Matalegion.com`) |
+| `LEAD_TO` | optional. Where leads go (default = `MAIL_FROM`) |
 
-Don't delete the old Worker. It holds the previous admin/CRM/portal code, which is useful reference for the back office rebuild. To roll back, swap the domains the other way.
+The app registration needs the Microsoft Graph **application** permission `Mail.Send`, with admin consent.
+Until these are set, the form shows visitors your email and phone number instead.
+
+## Domain
+
+In the Pages project `thematalegion` → **Custom domains**, add `thematalegion.com` and `www.thematalegion.com`.

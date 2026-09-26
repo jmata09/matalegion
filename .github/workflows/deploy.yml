@@ -6,9 +6,13 @@ name: Deploy site
 # This never changes which site thematalegion.com points at; that is a
 # separate, one-time step in the Cloudflare dashboard (see README).
 #
-# Needs two repository secrets (Settings > Secrets and variables > Actions > Secrets):
+# Needs repository secrets (Settings > Secrets and variables > Actions > Secrets):
 #   CLOUDFLARE_API_TOKEN   Account > Cloudflare Pages > Edit
 #   CLOUDFLARE_ACCOUNT_ID  optional if the token can only see one account
+# Contact form email (copied onto the Pages project on every deploy, when set):
+#   GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET   Microsoft 365 app with Mail.Send
+#   MAIL_FROM, LEAD_TO                                      optional mailbox overrides
+#   RESEND_API_KEY, RESEND_FROM                             optional fallback
 
 on:
   push:
@@ -57,7 +61,7 @@ jobs:
       - name: Collect site files
         run: |
           mkdir dist
-          cp *.html styles.css favicon.svg _redirects dist/
+          cp *.html styles.css site.js favicon.svg _redirects dist/
           ls dist
 
       - name: Ensure Pages project exists
@@ -72,6 +76,29 @@ jobs:
           curl -sf -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
             -d "{\"name\":\"$PROJECT\",\"production_branch\":\"main\"}" "$base" > /dev/null
           echo "Created project $PROJECT."
+
+      - name: Copy form email settings to the Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GRAPH_TENANT_ID: ${{ secrets.GRAPH_TENANT_ID }}
+          GRAPH_CLIENT_ID: ${{ secrets.GRAPH_CLIENT_ID }}
+          GRAPH_CLIENT_SECRET: ${{ secrets.GRAPH_CLIENT_SECRET }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          LEAD_TO: ${{ secrets.LEAD_TO }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
+        run: |
+          set -euo pipefail
+          vars=$(jq -n 'reduce ($ENV | to_entries[] | select(.key | IN("GRAPH_TENANT_ID","GRAPH_CLIENT_ID","GRAPH_CLIENT_SECRET","MAIL_FROM","LEAD_TO","RESEND_API_KEY","RESEND_FROM")) | select(.value != "")) as $e ({}; .[$e.key] = {type: "secret_text", value: $e.value})')
+          if [ "$vars" = "{}" ]; then
+            echo "::warning::No form email settings saved in GitHub yet; the contact form will show a fallback message until they are."
+            exit 0
+          fi
+          echo "Setting: $(echo "$vars" | jq -r 'keys | join(", ")')"
+          body=$(jq -n --argjson v "$vars" '{deployment_configs: {production: {env_vars: $v}, preview: {env_vars: $v}}}')
+          out=$(curl -s -X PATCH -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -d "$body" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT")
+          [ "$(echo "$out" | jq -r '.success')" = true ] || { echo "::error::Could not save settings: $(echo "$out" | jq -c '.errors')"; exit 1; }
 
       - name: Deploy
         env:

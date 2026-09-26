@@ -1,13 +1,14 @@
-# Old addresses from previous versions of the site -> the page that replaced them.
-/services        /how-we-help  301
-/services.html   /how-we-help  301
-/small-business  /             301
-/small-business.html /         301
-/our-legacy      /who-we-are   301
-/our-legacy.html /who-we-are   301
-/apply           /contact      302
-/refunds         /contact      302
-/insights        /             302
-# The client portal is being rebuilt; send visitors to Contact until it's back.
-/portal          /contact      302
-/portal/*        /contact      302
+# Old addresses -> the page that replaced them.
+/how-we-help         /services   301
+/how-we-help.html    /services   301
+/who-we-are          /about      301
+/who-we-are.html     /about      301
+/our-legacy          /about      301
+/our-legacy.html     /about      301
+/small-business      /           301
+/small-business.html /           301
+/apply               /contact    302
+/refunds             /contact    302
+/insights            /           302
+/portal              /contact    302
+/portal/*            /contact    302
