@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error(data.error || "send_failed");
     } catch (err) {
       status.className = "form-status error";
-      status.innerHTML = 'That didn\'t go through. Please email <a href="mailto:TheMatalegionGroup@Matalegion.com">TheMatalegionGroup@Matalegion.com</a> or call +1 702.818.7003.';
+      status.innerHTML = 'That didn\'t go through. Please email <a href="mailto:info.desk@matalegion.com">info.desk@matalegion.com</a> or call +1 702.818.7003.';
       button.disabled = false;
       button.innerHTML = label;
     }

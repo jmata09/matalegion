@@ -41,7 +41,7 @@ The form sends the lead to your mailbox and a confirmation to the visitor via Mi
 | `GRAPH_CLIENT_ID` | App registration's Application (client) ID |
 | `GRAPH_CLIENT_SECRET` | App registration's client secret |
 | `MAIL_FROM` | optional. Mailbox to send from (default `TheMatalegionGroup@Matalegion.com`) |
-| `LEAD_TO` | optional. Where leads go (default = `MAIL_FROM`) |
+| `LEAD_TO` | optional. Where leads go (default `info.desk@matalegion.com`) |
 
 The app registration needs the Microsoft Graph **application** permission `Mail.Send`, with admin consent.
 Until these are set, the form shows visitors your email and phone number instead.

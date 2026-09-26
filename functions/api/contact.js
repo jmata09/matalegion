@@ -7,10 +7,12 @@
 // Settings (Cloudflare Pages project > Settings > Variables and Secrets):
 //   GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET  Entra app with Mail.Send (application)
 //   MAIL_FROM   mailbox the app sends as     (default TheMatalegionGroup@Matalegion.com)
-//   LEAD_TO     where new leads are delivered (default = MAIL_FROM)
+//   LEAD_TO     where new leads are delivered (default info.desk@matalegion.com,
+//               an M365 alias on j.mata@)
 //   RESEND_API_KEY, RESEND_FROM                optional fallback
 
 const DEFAULT_MAILBOX = "TheMatalegionGroup@Matalegion.com";
+const PUBLIC_EMAIL = "info.desk@matalegion.com";
 const BOOKING_URL =
   "https://outlook.office.com/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
@@ -22,7 +24,7 @@ export async function onRequestPost({ request, env }) {
       ? Response.json(body, { status })
       : status === 200
         ? Response.redirect(new URL("/thanks", request.url), 303)
-        : new Response("Sorry, that didn't send. Please email " + DEFAULT_MAILBOX, { status });
+        : new Response("Sorry, that didn't send. Please email " + PUBLIC_EMAIL, { status });
 
   let form;
   try {
@@ -47,7 +49,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const from = env.MAIL_FROM || DEFAULT_MAILBOX;
-  const to = env.LEAD_TO || from;
+  const to = env.LEAD_TO || PUBLIC_EMAIL;
   const notice = {
     to,
     replyTo: lead.email,
