@@ -273,3 +273,16 @@ main { display: block; }
 .quote blockquote { margin: 0; font-size: 1.1rem; line-height: 1.55; }
 .quote blockquote::before { content: "\201C"; display: block; font-size: 3rem; line-height: .6; color: var(--lime, #C8F35A); }
 .quote figcaption { font-size: .85rem; opacity: .75; }
+
+/* Case study pages */
+.sample-banner { background: #FFD84D; color: #0A0B0A; font-size: .9rem; padding: 10px 0; }
+.sample-inline { background: #FFD84D; color: #0A0B0A; display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: .85rem; margin-bottom: 18px; }
+.case-card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; transition: transform .15s ease; }
+.case-card:hover { transform: translateY(-3px); }
+.case-card .link { margin-top: auto; }
+.case-stat { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 2px; }
+.case-stat strong { font-size: 1.25rem; color: var(--lime); }
+.case-h1 { font-size: clamp(2rem, 4.6vw, 3.4rem); max-width: 22ch; }
+.snapshot { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px 24px; margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--line); }
+.snapshot div { display: grid; gap: 4px; }
+.results td.us { color: var(--lime); font-weight: 700; }
