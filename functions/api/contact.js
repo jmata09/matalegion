@@ -15,6 +15,17 @@ const DEFAULT_MAILBOX = "TheMatalegionGroup@Matalegion.com";
 const PUBLIC_EMAIL = "info.desk@matalegion.com";
 const BOOKING_URL =
   "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
+// Dedicated Bookings consultation per need (form "What do you need?" value).
+const BOOKING_BY_NEED = {
+  "Service turnaround coaching": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
+  "Menu redesign": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
+  "Leadership training / onboarding": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
+  "Renovation / PIP / transformation": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
+  "Opening / new independent concept": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
+  "Staffing": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
+  "Task force / interim leadership": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
+  "Portfolio program (multiple properties)": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/XUAdwphkc0aUXIA79fdKxA2?ismsaljsauthenabled",
+};
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
 
 export async function onRequestPost({ request, env }) {
@@ -192,7 +203,7 @@ function confirmationHtml(lead) {
 <tr><td style="padding:8px 32px 30px">
   <p style="margin:0 0 14px;font:15px/1.5 Arial,sans-serif;color:#333">Rather not wait? Pick a time for your consultation now.</p>
   <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#C8F35A;border-radius:999px">
-  <a href="${BOOKING_URL}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#0A0B0A;text-decoration:none">Book your free 1-hour consultation &rarr;</a>
+  <a href="${BOOKING_BY_NEED[lead.need] || BOOKING_URL}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#0A0B0A;text-decoration:none">Book your free 1-hour consultation &rarr;</a>
   </td></tr></table>
 </td></tr>
 <tr><td style="padding:22px 32px;border-top:1px solid #ECECE8;font:14px/1.6 Arial,sans-serif;color:#555">
