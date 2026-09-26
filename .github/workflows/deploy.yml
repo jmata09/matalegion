@@ -62,6 +62,7 @@ jobs:
         run: |
           mkdir dist
           cp *.html styles.css site.js favicon.svg _redirects dist/
+          for d in blog audio images; do [ -d "$d" ] && cp -R "$d" dist/; done
           ls dist
 
       - name: Ensure Pages project exists

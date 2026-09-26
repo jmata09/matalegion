@@ -252,3 +252,24 @@ main { display: block; }
   .btn, .btn .arrow { transition: none; }
   .btn:hover { transform: none; }
 }
+
+/* Case studies, blog, testimonials */
+.placeholder { outline: 1px dashed currentColor; opacity: .6; padding: 0 4px; }
+.case-meta { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--lime, #C8F35A); }
+.case-title { font-size: clamp(1.5rem, 3vw, 2.1rem); margin-top: 10px; }
+.case-body { margin-top: 22px; gap: 22px; }
+.case-body p { margin-top: 8px; }
+.post { display: block; text-decoration: none; color: inherit; transition: transform .15s ease; }
+.post:hover { transform: translateY(-2px); }
+.post h3 { margin-top: 12px; }
+.post .link { display: inline-block; margin-top: 14px; }
+.prose-wrap { max-width: 760px; }
+.post-title { font-size: clamp(2rem, 5vw, 3.4rem); }
+.back { color: inherit; text-decoration: none; }
+.player { margin-block: 28px; }
+.player audio { width: 100%; }
+.player p { margin-top: 10px; }
+.quote { margin: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
+.quote blockquote { margin: 0; font-size: 1.1rem; line-height: 1.55; }
+.quote blockquote::before { content: "\201C"; display: block; font-size: 3rem; line-height: .6; color: var(--lime, #C8F35A); }
+.quote figcaption { font-size: .85rem; opacity: .75; }

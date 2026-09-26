@@ -9,6 +9,6 @@
 /small-business.html /           301
 /apply               /contact    302
 /refunds             /contact    302
-/insights            /           302
+/insights            /blog       301
 /portal              /contact    302
 /portal/*            /contact    302
