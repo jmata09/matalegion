@@ -1,0 +1,38 @@
+name: Cloudflare cleanup (one-time)
+
+# Deletes ONLY the Pages projects named below (and their custom domains).
+# Approved by the account owner on 2026-09-26: "shop and n8xen can go".
+
+on:
+  push:
+    paths:
+      - .github/cloudflare-cleanup-request
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete named Pages projects
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PROJECTS: "lr-shop n8xen"
+        run: |
+          set -uo pipefail
+          api="https://api.cloudflare.com/client/v4"
+          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+          acct=$(curl -s "${auth[@]}" "$api/accounts" | jq -r '.result[0].id')
+          failed=0
+          for p in $PROJECTS; do
+            for d in $(curl -s "${auth[@]}" "$api/accounts/$acct/pages/projects/$p/domains" | jq -r '.result[]?.name'); do
+              out=$(curl -s -X DELETE "${auth[@]}" "$api/accounts/$acct/pages/projects/$p/domains/$d")
+              echo "domain $d ($p): $(echo "$out" | jq -c '.success,.errors')"
+            done
+            out=$(curl -s -X DELETE "${auth[@]}" "$api/accounts/$acct/pages/projects/$p")
+            if [ "$(echo "$out" | jq -r '.success')" = true ]; then echo "DELETED project $p"
+            else echo "FAILED project $p -> $(echo "$out" | jq -c '.errors')"; failed=1; fi
+          done
+          echo "Remaining pages: $(curl -s "${auth[@]}" "$api/accounts/$acct/pages/projects" | jq -c '[.result[]?.name]')"
+          exit $failed
