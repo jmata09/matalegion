@@ -267,3 +267,4 @@ a.pillar-card { transition: transform .15s ease; }
 a.pillar-card:hover { transform: translateY(-3px); }
 .pillar-head { padding-block: clamp(40px, 6vw, 72px); }
 .pillar-head h2 { font-size: clamp(2rem, 4.4vw, 3.2rem); }
+.card-lime.pillar-card, .card-lime.pillar-card h3, .card-lime.pillar-card .checks a { color: var(--ink-on-lime); }
