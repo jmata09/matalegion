@@ -14,7 +14,7 @@
 const DEFAULT_MAILBOX = "TheMatalegionGroup@Matalegion.com";
 const PUBLIC_EMAIL = "info.desk@matalegion.com";
 const BOOKING_URL =
-  "https://outlook.office.com/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
+  "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
 
 export async function onRequestPost({ request, env }) {
