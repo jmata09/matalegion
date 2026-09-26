@@ -14,8 +14,8 @@
 /portal/*            /contact    301
 /our-members         /                  301
 /our-members.html    /                  301
-/enterprise          /services#portfolio 301
-/enterprise.html     /services#portfolio 301
+/enterprise          /services           301
+/enterprise.html     /services           301
 /audit               /contact           301
 /audit.html          /contact           301
 /apply.html          /contact           301
