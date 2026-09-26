@@ -1,7 +1,7 @@
 name: Cloudflare cleanup (one-time)
 
 # Deletes ONLY the Pages projects named below (and their custom domains).
-# Approved by the account owner on 2026-09-26: "shop and n8xen can go".
+# Approved by the account owner on 2026-09-26: "shop and n8xen can go", then "admin can go also".
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       - name: Delete named Pages projects
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          PROJECTS: "lr-shop n8xen"
+          PROJECTS: "lr-admin"
         run: |
           set -uo pipefail
           api="https://api.cloudflare.com/client/v4"
