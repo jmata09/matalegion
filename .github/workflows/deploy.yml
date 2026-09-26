@@ -61,7 +61,7 @@ jobs:
       - name: Collect site files
         run: |
           mkdir dist
-          cp *.html styles.css site.js favicon.svg _redirects dist/
+          cp *.html styles.css site.js favicon.svg _redirects robots.txt sitemap.xml dist/
           ls dist
 
       - name: Ensure Pages project exists
