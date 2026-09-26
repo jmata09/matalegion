@@ -1,0 +1,14 @@
+# Old addresses -> the page that replaced them.
+/how-we-help         /services   301
+/how-we-help.html    /services   301
+/who-we-are          /about      301
+/who-we-are.html     /about      301
+/our-legacy          /about      301
+/our-legacy.html     /about      301
+/small-business      /           301
+/small-business.html /           301
+/apply               /contact    302
+/refunds             /contact    302
+/insights            /           302
+/portal              /contact    302
+/portal/*            /contact    302

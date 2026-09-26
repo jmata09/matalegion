@@ -1,0 +1,106 @@
+name: Deploy site
+
+# Publishes the site to the Cloudflare Pages project "thematalegion".
+# - Push to main        -> production deployment of that project
+# - Push to any branch  -> preview deployment (its own *.pages.dev link)
+# This never changes which site thematalegion.com points at; that is a
+# separate, one-time step in the Cloudflare dashboard (see README).
+#
+# Needs repository secrets (Settings > Secrets and variables > Actions > Secrets):
+#   CLOUDFLARE_API_TOKEN   Account > Cloudflare Pages > Edit
+#   CLOUDFLARE_ACCOUNT_ID  optional if the token can only see one account
+# Contact form email (copied onto the Pages project on every deploy, when set):
+#   GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET   Microsoft 365 app with Mail.Send
+#   MAIL_FROM, LEAD_TO                                      optional mailbox overrides
+#   RESEND_API_KEY, RESEND_FROM                             optional fallback
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: thematalegion
+
+jobs:
+  deploy:
+    # Skip the commit that requests the one-time Cloudflare cleanup.
+    if: ${{ !contains(github.event.head_commit.message, '[cloudflare-cleanup]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Repository secret CLOUDFLARE_API_TOKEN is not set."; exit 1
+          fi
+          account_id="$CLOUDFLARE_ACCOUNT_ID"
+          if [ -z "$account_id" ]; then
+            # No account ID saved: ask Cloudflare which account this token belongs to.
+            resp=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts?per_page=50")
+            count=$(echo "$resp" | jq '.result | length // 0')
+            if [ "$count" = 1 ]; then
+              account_id=$(echo "$resp" | jq -r '.result[0].id')
+              echo "Using the token's only account: $(echo "$resp" | jq -r '.result[0].name')"
+            else
+              echo "::error::CLOUDFLARE_ACCOUNT_ID is not set and the token can see $count accounts. Add CLOUDFLARE_ACCOUNT_ID as a repository secret."
+              echo "$resp" | jq -c '.errors' || true
+              exit 1
+            fi
+          fi
+          echo "CLOUDFLARE_ACCOUNT_ID=$account_id" >> "$GITHUB_ENV"
+          echo "Credentials present."
+
+      - name: Collect site files
+        run: |
+          mkdir dist
+          cp *.html styles.css site.js favicon.svg _redirects dist/
+          ls dist
+
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          base="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects"
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$base/$PROJECT")
+          if [ "$code" = 200 ]; then echo "Project $PROJECT exists."; exit 0; fi
+          if [ "$code" != 404 ]; then echo "::error::Cloudflare API returned $code checking the project (token or account ID is wrong, or the token lacks Pages:Edit)."; exit 1; fi
+          curl -sf -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -d "{\"name\":\"$PROJECT\",\"production_branch\":\"main\"}" "$base" > /dev/null
+          echo "Created project $PROJECT."
+
+      - name: Copy form email settings to the Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GRAPH_TENANT_ID: ${{ secrets.GRAPH_TENANT_ID }}
+          GRAPH_CLIENT_ID: ${{ secrets.GRAPH_CLIENT_ID }}
+          GRAPH_CLIENT_SECRET: ${{ secrets.GRAPH_CLIENT_SECRET }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          LEAD_TO: ${{ secrets.LEAD_TO }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
+        run: |
+          set -euo pipefail
+          vars=$(jq -n 'reduce ($ENV | to_entries[] | select(.key | IN("GRAPH_TENANT_ID","GRAPH_CLIENT_ID","GRAPH_CLIENT_SECRET","MAIL_FROM","LEAD_TO","RESEND_API_KEY","RESEND_FROM")) | select(.value != "")) as $e ({}; .[$e.key] = {type: "secret_text", value: $e.value})')
+          if [ "$vars" = "{}" ]; then
+            echo "::warning::No form email settings saved in GitHub yet; the contact form will show a fallback message until they are."
+            exit 0
+          fi
+          echo "Setting: $(echo "$vars" | jq -r 'keys | join(", ")')"
+          body=$(jq -n --argjson v "$vars" '{deployment_configs: {production: {env_vars: $v}, preview: {env_vars: $v}}}')
+          out=$(curl -s -X PATCH -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -d "$body" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT")
+          [ "$(echo "$out" | jq -r '.success')" = true ] || { echo "::error::Could not save settings: $(echo "$out" | jq -c '.errors')"; exit 1; }
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx --yes wrangler@4 pages deploy dist --project-name="$PROJECT" --branch="${GITHUB_REF_NAME}"

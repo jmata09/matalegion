@@ -1,31 +1,51 @@
-# Charlie's Call to Action
+# The Matalegion Group: thematalegion.com
 
-Landing page for charliescalltoaction.org.
+Marketing site for The Matalegion Group: hotel service turnarounds, task force leadership and portfolio programs.
 
-`index.html` is the whole site — one file, no build step, no dependencies.
-Edit it in any text editor and push; that's the entire workflow.
+Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No build step.
 
-## Putting it online
+## Files
 
-In the Cloudflare dashboard:
+| File | What it is |
+|---|---|
+| `index.html` | Home (long-form sales page) |
+| `services.html` | Services (`/services`) |
+| `about.html` | About (`/about`) |
+| `contact.html` | Contact (`/contact`) with booking link and form |
+| `thanks.html` | Shown after the form is sent |
+| `privacy.html` | Privacy note |
+| `404.html` | Page not found |
+| `styles.css` | All styling (colors are at the top) |
+| `site.js` | Sends the contact form without leaving the page |
+| `functions/api/contact.js` | Receives the form and emails it through Microsoft 365 |
+| `_redirects` | Sends old addresses to the right page |
 
-1. **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Pick `jmata09/matalegion`
-3. Framework preset: **None** · Build command: **leave empty** · Output directory: **leave empty**
-4. **Save and Deploy**
+The header, footer and contact form are repeated in each page. If you change the menu, phone number, email or booking link, search all pages for the old text.
 
-That gives you a live `*.pages.dev` URL in about a minute.
+## Publishing
 
-## Adding the domain
+Every push is published by `.github/workflows/deploy.yml` to the Cloudflare Pages project `thematalegion`:
 
-Only after the site is live and looks right:
+- push to `main` → the live site
+- push to any other branch → a preview link (shown in the Actions log)
 
-1. Cloudflare → **Add a domain** → `charliescalltoaction.org` → Free plan
-2. Cloudflare gives you two nameservers — set those at your registrar
-3. Wait for the domain to show **Active** (minutes, sometimes longer)
-4. In the Pages project → **Custom domains** → add `charliescalltoaction.org` and `www.charliescalltoaction.org`
+Needs the GitHub secret `CLOUDFLARE_API_TOKEN` (Account → Cloudflare Pages → Edit).
 
-## Still to fill in
+## Contact form email (Microsoft 365)
 
-- EIN in the footer
-- A real inbox for `info@charliescalltoaction.org` (Cloudflare → Email → Email Routing, free)
+The form sends the lead to your mailbox and a confirmation to the visitor via Microsoft Graph. Add these GitHub secrets. The deploy copies them to Cloudflare:
+
+| Secret | Value |
+|---|---|
+| `GRAPH_TENANT_ID` | Microsoft Entra tenant ID |
+| `GRAPH_CLIENT_ID` | App registration's Application (client) ID |
+| `GRAPH_CLIENT_SECRET` | App registration's client secret |
+| `MAIL_FROM` | optional. Mailbox to send from (default `TheMatalegionGroup@Matalegion.com`) |
+| `LEAD_TO` | optional. Where leads go (default = `MAIL_FROM`) |
+
+The app registration needs the Microsoft Graph **application** permission `Mail.Send`, with admin consent.
+Until these are set, the form shows visitors your email and phone number instead.
+
+## Domain
+
+In the Pages project `thematalegion` → **Custom domains**, add `thematalegion.com` and `www.thematalegion.com`.
