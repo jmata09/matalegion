@@ -252,3 +252,8 @@ main { display: block; }
   .btn, .btn .arrow { transition: none; }
   .btn:hover { transform: none; }
 }
+
+/* Openings strip on home */
+.openings-strip { margin-top: 16px; display: grid; gap: 18px; align-items: center; }
+@media (min-width: 860px) { .openings-strip { grid-template-columns: 1fr auto; gap: 40px; } }
+.openings-strip h3 { margin-top: 10px; }
