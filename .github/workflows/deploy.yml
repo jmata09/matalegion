@@ -22,6 +22,8 @@ env:
 
 jobs:
   deploy:
+    # Skip the commit that requests the one-time Cloudflare cleanup.
+    if: ${{ !contains(github.event.head_commit.message, '[cloudflare-cleanup]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
