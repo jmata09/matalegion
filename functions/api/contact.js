@@ -23,7 +23,6 @@ const BOOKING_BY_NEED = {
   "Interim / task force leadership": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
   "Renovation, PIP or opening": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
   "Portfolio program (multiple properties)": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/XUAdwphkc0aUXIA79fdKxA2?ismsaljsauthenabled",
-  "Menu redesign": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
   "Not sure yet": "",
 };
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
