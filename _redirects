@@ -19,3 +19,18 @@
 /audit               /contact           301
 /audit.html          /contact           301
 /apply.html          /contact           301
+# Former landing pages (merged into Services)
+/boutique-hotel-opening-consultant    /services  301
+/boutique-hotel-opening-consultant.html /services  301
+/hospitality-leadership-training      /services  301
+/hospitality-leadership-training.html /services  301
+/hotel-pip-management                 /services  301
+/hotel-pip-management.html            /services  301
+/hotel-restaurant-staffing            /services  301
+/hotel-restaurant-staffing.html       /services  301
+/hotel-turnaround-consultant          /services  301
+/hotel-turnaround-consultant.html     /services  301
+/interim-hotel-general-manager        /services  301
+/interim-hotel-general-manager.html   /services  301
+/restaurant-menu-engineering          /services  301
+/restaurant-menu-engineering.html     /services  301

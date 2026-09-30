@@ -1,6 +1,8 @@
 # The Matalegion Group: thematalegion.com
 
-Marketing site for The Matalegion Group. Three core services for hotels and restaurants (Turnarounds; Renovations, PIPs & Openings; Portfolio Programs) plus Menu Redesign as a standalone service.
+Marketing site for The Matalegion Group. Three services for hotels and restaurants: Turnarounds (including F&B and menus, interim leaders, training and staffing); Renovations, PIPs & Openings; and Portfolio Programs.
+
+Four main pages (Home, Services, About, Contact). Every page offers **Book a Free Consultation** (one Microsoft Bookings link) and the contact form. The former SEO landing pages redirect to `/services`.
 
 Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No build step.
 

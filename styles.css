@@ -259,19 +259,6 @@ main { display: block; }
 @media (min-width: 860px) { .openings-strip { grid-template-columns: 1fr auto; gap: 40px; } }
 .openings-strip h3 { margin-top: 10px; }
 
-/* Standalone service strip (Menu Redesign) under the core services */
-.standalone {
-  display: grid; gap: 14px 24px; align-items: center; grid-template-columns: 1fr;
-  margin-top: 16px; padding: 22px 26px; border: 1px dashed var(--line); border-radius: var(--radius);
-  text-decoration: none; transition: border-color .15s;
-}
-.standalone:hover { border-color: var(--lime); }
-.standalone .tag { margin: 0; justify-self: start; }
-.standalone-body { display: grid; gap: 4px; }
-.standalone-body strong { font: 800 1.2rem/1.2 var(--display); }
-.standalone .link { margin: 0; }
-@media (min-width: 760px) { .standalone { grid-template-columns: auto 1fr auto; } }
-
 /* Stay in the Know sign-up (footer) */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .signup-band {
