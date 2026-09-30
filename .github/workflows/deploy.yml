@@ -26,8 +26,6 @@ env:
 
 jobs:
   deploy:
-    # Skip the commit that requests the one-time Cloudflare cleanup.
-    if: ${{ !contains(github.event.head_commit.message, '[cloudflare-cleanup]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +59,7 @@ jobs:
       - name: Collect site files
         run: |
           mkdir dist
-          cp *.html styles.css site.js favicon.svg _redirects robots.txt sitemap.xml dist/
+          cp *.html styles.css site.js favicon.svg _redirects _headers robots.txt sitemap.xml dist/
           ls dist
 
       - name: Ensure Pages project exists
