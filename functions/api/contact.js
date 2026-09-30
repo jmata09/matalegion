@@ -16,16 +16,18 @@ const PUBLIC_EMAIL = "info.desk@matalegion.com";
 const BOOKING_URL =
   "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
 // Dedicated Bookings consultation per need (form "What do you need?" value).
+// Also the list of accepted values: anything else is recorded as blank.
 const BOOKING_BY_NEED = {
-  "Service turnaround coaching": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
-  "Menu redesign": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
-  "Leadership training / onboarding": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
-  "Renovation / PIP / transformation": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
-  "Opening / new independent concept": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
-  "Staffing": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
-  "Task force / interim leadership": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
+  "Turnaround": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
+  "Interim / task force leadership": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
+  "Renovation, PIP or opening": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
   "Portfolio program (multiple properties)": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/XUAdwphkc0aUXIA79fdKxA2?ismsaljsauthenabled",
+  "Menu redesign": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
+  "Not sure yet": "",
 };
+// Only accept submissions sent from our own pages.
+const ALLOWED_ORIGIN = /^https:\/\/((www\.)?thematalegion\.com|([a-z0-9-]+\.)?thematalegion\.pages\.dev)$/;
+const MAX_BODY_BYTES = 32 * 1024;
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
 
 export async function onRequestPost({ request, env }) {
@@ -36,6 +38,14 @@ export async function onRequestPost({ request, env }) {
       : status === 200
         ? Response.redirect(new URL("/thanks", request.url), 303)
         : new Response("Sorry, that didn't send. Please email " + PUBLIC_EMAIL, { status });
+
+  const origin = request.headers.get("origin");
+  if (origin && !ALLOWED_ORIGIN.test(origin)) {
+    return reply(403, { ok: false, error: "forbidden" });
+  }
+  if (Number(request.headers.get("content-length") || 0) > MAX_BODY_BYTES) {
+    return reply(413, { ok: false, error: "too_large" });
+  }
 
   let form;
   try {
@@ -48,6 +58,8 @@ export async function onRequestPost({ request, env }) {
   for (const [key, max] of Object.entries(FIELDS)) {
     lead[key] = String(form.get(key) || "").trim().slice(0, max);
   }
+
+  if (!(lead.need in BOOKING_BY_NEED)) lead.need = "";
 
   // Spam traps: a hidden field people never see, and submissions faster than a human can type.
   const started = Number(form.get("t") || 0);
@@ -173,9 +185,10 @@ function leadHtml(lead, request) {
 }
 
 function confirmationHtml(lead) {
-  const first = esc(lead.name.split(/\s+/)[0]);
-  const need = lead.need && lead.need !== "Not sure yet" ? esc(lead.need.toLowerCase()) : "";
-  const about = need ? `${esc(lead.company)} and ${need}` : esc(lead.company);
+  // Only a cleaned-up first name and a value from our own list are repeated back, never free
+  // text, so nobody can use this form to send our branded email with their own words in it.
+  const first = esc(lead.name.split(/\s+/)[0].replace(/[^\p{L}\p{M}'-]/gu, "").slice(0, 30));
+  const about = lead.need && lead.need !== "Not sure yet" ? `your ${esc(lead.need.toLowerCase())} enquiry` : "your enquiry";
   const step = (n, title, text) => `<tr>
 <td valign="top" style="padding:0 14px 16px 0;width:30px"><div style="width:28px;height:28px;border-radius:14px;background:#C8F35A;color:#0A0B0A;font:800 13px/28px Arial,sans-serif;text-align:center">${n}</div></td>
 <td valign="top" style="padding:0 0 16px;font:15px/1.5 Arial,sans-serif;color:#333"><strong style="color:#0A0B0A">${title}</strong><br>${text}</td></tr>`;
@@ -191,7 +204,7 @@ function confirmationHtml(lead) {
 </td></tr>
 <tr><td style="padding:34px 32px 8px">
   <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#6B8F12;text-transform:uppercase">We've got your details</p>
-  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#0A0B0A">Thanks, ${first}.</h1>
+  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#0A0B0A">Thanks${first ? `, ${first}` : ""}.</h1>
   <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.</p>
   <p style="margin:0 0 14px;font:800 15px Arial,sans-serif;color:#0A0B0A">What happens next</p>
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
