@@ -271,3 +271,26 @@ main { display: block; }
 .standalone-body strong { font: 800 1.2rem/1.2 var(--display); }
 .standalone .link { margin: 0; }
 @media (min-width: 760px) { .standalone { grid-template-columns: auto 1fr auto; } }
+
+/* Stay in the Know sign-up (footer) */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.signup-band {
+  display: grid; gap: 18px 32px; grid-template-columns: 1fr; align-items: center;
+  margin-top: 40px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
+}
+@media (min-width: 860px) { .signup-band { grid-template-columns: 1fr 1.1fr; } }
+.signup-band h4 { margin: 0 0 6px; font: 900 1.2rem/1.1 var(--display); letter-spacing: -.01em; text-transform: uppercase; color: var(--text); }
+.signup-band p { margin: 0; }
+.signup { display: flex; flex-wrap: wrap; gap: 10px; }
+.signup input[type=email] {
+  flex: 1 1 220px; min-width: 0; padding: 14px 16px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--text); font: 500 1rem/1.3 var(--sans);
+}
+.signup input[type=email]:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px rgba(200, 243, 90, .2); }
+.signup-status { flex-basis: 100%; min-height: 1.2em; font-weight: 600; }
+.signup-status.ok { color: var(--lime); }
+.signup-status.error { color: var(--danger); }
+
+/* Opt-in checkbox on contact forms */
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; color: var(--muted); cursor: pointer; }
+.check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--lime); flex: none; }

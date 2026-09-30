@@ -192,6 +192,7 @@
   <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
   <input type="hidden" name="t" value="">
   <input type="hidden" name="page" value="/contact">
+  <label class="check"><input type="checkbox" name="newsletter" value="1"> Keep me in the know: send me occasional insights (you can unsubscribe any time)</label>
   <button class="btn btn-lime btn-lg" type="submit">Send My Details <span class="arrow" aria-hidden="true">→</span></button>
   <p class="form-status" role="status" aria-live="polite"></p>
   <p class="small muted">We reply within one business day. No spam, no mailing lists. See our <a href="/privacy">privacy note</a>.</p>
@@ -230,6 +231,20 @@
           <li><a href="tel:+17028187003">+1 702.818.7003</a></li>
         </ul>
       </div>
+    </div>
+    <div class="signup-band">
+      <div>
+        <h4>Stay in the know</h4>
+        <p>Practical insights from operators on turnarounds, renovations and service. No spam, unsubscribe any time.</p>
+      </div>
+      <form class="signup" action="/api/subscribe" method="post" novalidate>
+        <label class="sr-only" for="signup-email">Email address</label>
+        <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="Your work email">
+        <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
+        <input type="hidden" name="t" value="">
+        <button class="btn btn-lime" type="submit">Subscribe</button>
+        <p class="signup-status small" role="status" aria-live="polite"></p>
+      </form>
     </div>
     <p class="foot-note">&copy; 2026 Matalegion Inc. All rights reserved.</p>
   </div>
