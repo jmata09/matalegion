@@ -12,7 +12,7 @@
 //   RESEND_API_KEY, RESEND_FROM                optional fallback
 
 import { DEFAULT_MAILBOX, PUBLIC_EMAIL, badOrigin, tooLarge, send, esc } from "../lib/mail.js";
-import { sendOptIn } from "../lib/list.js";
+import { sendOptIn, isSubscribed } from "../lib/list.js";
 
 const BOOKING_URL =
   "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
@@ -89,7 +89,10 @@ export async function onRequestPost({ request, env }) {
   await send(env, from, confirmation).catch((err) => console.error("confirmation_failed", err.message));
   // Ticked "Keep me in the know": send the mailing-list confirmation link too.
   if (form.get("newsletter")) {
-    await sendOptIn(env, lead.email.toLowerCase()).catch((err) => console.error("optin_failed", err.message));
+    const email = lead.email.toLowerCase();
+    if (!(await isSubscribed(env, email).catch(() => false))) {
+      await sendOptIn(env, email).catch((err) => console.error("optin_failed", err.message));
+    }
   }
 
   return reply(200, { ok: true });
