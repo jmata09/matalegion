@@ -92,3 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const which = new URLSearchParams(location.search).get("for");
   if (which) document.querySelectorAll("[data-for]").forEach((el) => { el.hidden = el.dataset.for !== which; });
 });
+
+// ?need=candidate (the "Join the Talent Network" button) pre-selects that option on the form.
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("f-need");
+  if (!select || new URLSearchParams(location.search).get("need") !== "candidate") return;
+  const option = [...select.options].find((o) => o.value.startsWith("I'm a candidate"));
+  if (option) select.value = option.value;
+});
