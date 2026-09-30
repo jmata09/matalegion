@@ -52,9 +52,11 @@
     <h2>What we collect</h2>
     <p>When you send the contact form, we receive the details you enter: your name, email, phone, company, role and message. When you book a call, Microsoft Bookings collects the details it asks for.</p>
     <h2>How we use it</h2>
-    <p>Only to reply to you and discuss working together. We don't sell your details or add you to mailing lists.</p>
+    <p>Only to reply to you and discuss working together. We never sell your details, and we only add you to our mailing list if you ask to join and confirm it.</p>
+    <h2>Our mailing list (Stay in the Know)</h2>
+    <p>If you sign up, or tick "Keep me in the know" on the contact form, we send you a confirmation email first. You're only added after you click its link. We then send occasional insights on hotel and restaurant operations. Every email has an unsubscribe link, or you can unsubscribe at <a href="/unsubscribe">thematalegion.com/unsubscribe</a> at any time.</p>
     <h2>Where it goes</h2>
-    <p>Form messages are delivered to our Microsoft 365 mailbox. The site is hosted on Cloudflare.</p>
+    <p>Form messages are delivered to our Microsoft 365 mailbox. Mailing list addresses are kept with our email provider, Resend. The site is hosted on Cloudflare.</p>
     <h2>Your choices</h2>
     <p>To see, correct or delete what we hold about you, email <a href="mailto:info.desk@matalegion.com">info.desk@matalegion.com</a>.</p>
   </div>
@@ -89,6 +91,20 @@
           <li><a href="tel:+17028187003">+1 702.818.7003</a></li>
         </ul>
       </div>
+    </div>
+    <div class="signup-band">
+      <div>
+        <h4>Stay in the know</h4>
+        <p>Practical insights from operators on turnarounds, renovations and service. No spam, unsubscribe any time.</p>
+      </div>
+      <form class="signup" action="/api/subscribe" method="post" novalidate>
+        <label class="sr-only" for="signup-email">Email address</label>
+        <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="Your work email">
+        <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
+        <input type="hidden" name="t" value="">
+        <button class="btn btn-lime" type="submit">Subscribe</button>
+        <p class="signup-status small" role="status" aria-live="polite"></p>
+      </form>
     </div>
     <p class="foot-note">&copy; 2026 Matalegion Inc. All rights reserved.</p>
   </div>

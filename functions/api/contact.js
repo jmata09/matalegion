@@ -11,8 +11,9 @@
 //               an M365 alias on j.mata@)
 //   RESEND_API_KEY, RESEND_FROM                optional fallback
 
-const DEFAULT_MAILBOX = "TheMatalegionGroup@Matalegion.com";
-const PUBLIC_EMAIL = "info.desk@matalegion.com";
+import { DEFAULT_MAILBOX, PUBLIC_EMAIL, badOrigin, tooLarge, send, esc } from "../lib/mail.js";
+import { sendOptIn } from "../lib/list.js";
+
 const BOOKING_URL =
   "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled";
 // Dedicated Bookings consultation per need (form "What do you need?" value).
@@ -25,9 +26,6 @@ const BOOKING_BY_NEED = {
   "Menu redesign": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
   "Not sure yet": "",
 };
-// Only accept submissions sent from our own pages.
-const ALLOWED_ORIGIN = /^https:\/\/((www\.)?thematalegion\.com|([a-z0-9-]+\.)?thematalegion\.pages\.dev)$/;
-const MAX_BODY_BYTES = 32 * 1024;
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
 
 export async function onRequestPost({ request, env }) {
@@ -39,13 +37,8 @@ export async function onRequestPost({ request, env }) {
         ? Response.redirect(new URL("/thanks", request.url), 303)
         : new Response("Sorry, that didn't send. Please email " + PUBLIC_EMAIL, { status });
 
-  const origin = request.headers.get("origin");
-  if (origin && !ALLOWED_ORIGIN.test(origin)) {
-    return reply(403, { ok: false, error: "forbidden" });
-  }
-  if (Number(request.headers.get("content-length") || 0) > MAX_BODY_BYTES) {
-    return reply(413, { ok: false, error: "too_large" });
-  }
+  if (badOrigin(request)) return reply(403, { ok: false, error: "forbidden" });
+  if (tooLarge(request)) return reply(413, { ok: false, error: "too_large" });
 
   let form;
   try {
@@ -94,70 +87,13 @@ export async function onRequestPost({ request, env }) {
   }
   // The lead is safe; a failed confirmation shouldn't fail the visitor's submit.
   await send(env, from, confirmation).catch((err) => console.error("confirmation_failed", err.message));
+  // Ticked "Keep me in the know": send the mailing-list confirmation link too.
+  if (form.get("newsletter")) {
+    await sendOptIn(env, lead.email.toLowerCase()).catch((err) => console.error("optin_failed", err.message));
+  }
 
   return reply(200, { ok: true });
 }
-
-async function send(env, from, msg) {
-  if (env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET) {
-    return sendWithGraph(env, from, msg);
-  }
-  if (env.RESEND_API_KEY) {
-    return sendWithResend(env, msg);
-  }
-  throw new Error("no_mail_provider_configured");
-}
-
-async function sendWithGraph(env, from, { to, replyTo, subject, html }) {
-  const tokenRes = await fetch(
-    `https://login.microsoftonline.com/${encodeURIComponent(env.GRAPH_TENANT_ID)}/oauth2/v2.0/token`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: env.GRAPH_CLIENT_ID,
-        client_secret: env.GRAPH_CLIENT_SECRET,
-        grant_type: "client_credentials",
-        scope: "https://graph.microsoft.com/.default",
-      }),
-    },
-  );
-  const token = await tokenRes.json().catch(() => ({}));
-  if (!token.access_token) throw new Error(`graph_token_${tokenRes.status}: ${token.error || ""}`);
-
-  const res = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(from)}/sendMail`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: {
-        subject,
-        body: { contentType: "HTML", content: html },
-        toRecipients: [{ emailAddress: { address: to } }],
-        replyTo: [{ emailAddress: { address: replyTo } }],
-      },
-      saveToSentItems: true,
-    }),
-  });
-  if (!res.ok) throw new Error(`graph_sendmail_${res.status}: ${(await res.text()).slice(0, 200)}`);
-}
-
-async function sendWithResend(env, { to, replyTo, subject, html }) {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: env.RESEND_FROM || "The Matalegion Group <noreply@thematalegion.com>",
-      to: [to],
-      reply_to: replyTo,
-      subject,
-      html,
-    }),
-  });
-  if (!res.ok) throw new Error(`resend_${res.status}: ${(await res.text()).slice(0, 200)}`);
-}
-
-const esc = (s) =>
-  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 function leadHtml(lead, request) {
   const rows = [
