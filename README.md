@@ -1,8 +1,8 @@
 # The Matalegion Group: thematalegion.com
 
-Marketing site for The Matalegion Group. Three services for hotels and restaurants: Turnarounds (including F&B and menus, interim leaders, training and staffing); Renovations, PIPs & Openings; and Portfolio Programs.
+Marketing site for The Matalegion Group, a hospitality consultancy. Four services for hotels and restaurants: Turnarounds (including F&B and menus, leadership coaching and training); Task Force & Staffing (interim leaders and permanent placement, with its own page at `/staffing` and a candidate talent network); Renovations, PIPs & Openings; and Portfolio Programs.
 
-Four main pages (Home, Services, About, Contact). Every page offers **Book a Free Consultation** (one Microsoft Bookings link) and the contact form. The former SEO landing pages redirect to `/services`.
+Five main pages (Home, Services, Staffing, About, Contact). Every page offers **Book a Free Consultation** (one Microsoft Bookings link) and the contact form. The former SEO landing pages redirect to `/services`, or `/staffing` for the old staffing and interim-GM pages. Contact form submissions with "I'm a candidate (talent network)" arrive as **New candidate: …** and get a candidate-specific confirmation.
 
 Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No build step.
 
@@ -12,6 +12,7 @@ Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No 
 |---|---|
 | `index.html` | Home (long-form sales page) |
 | `services.html` | Services (`/services`) |
+| `staffing.html` | Task Force & Staffing (`/staffing`), incl. the candidate talent network |
 | `about.html` | About (`/about`) |
 | `contact.html` | Contact (`/contact`) with booking link and form |
 | `thanks.html` | Shown after the form is sent |

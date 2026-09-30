@@ -22,9 +22,12 @@ const BOOKING_BY_NEED = {
   "Turnaround": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/gFvrMYiozkOG3k69TdE5zg2?ismsaljsauthenabled",
   "Interim / task force leadership": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
   "Renovation, PIP or opening": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/bdcuvxhtrk-cTGIhXJM-1A2?ismsaljsauthenabled",
+  "Staffing / permanent placement": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/arJF0r5A6EKq2mQZ_bkS_A2?ismsaljsauthenabled",
+  "I'm a candidate (talent network)": "",
   "Portfolio program (multiple properties)": "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/XUAdwphkc0aUXIA79fdKxA2?ismsaljsauthenabled",
   "Not sure yet": "",
 };
+const CANDIDATE = "I'm a candidate (talent network)";
 const FIELDS = { name: 120, email: 200, phone: 40, company: 160, role: 60, need: 80, message: 4000, page: 100 };
 
 export async function onRequestPost({ request, env }) {
@@ -68,7 +71,7 @@ export async function onRequestPost({ request, env }) {
   const notice = {
     to,
     replyTo: lead.email,
-    subject: `New lead: ${lead.company} (${lead.name})`,
+    subject: lead.need === CANDIDATE ? `New candidate: ${lead.name}` : `New lead: ${lead.company} (${lead.name})`,
     html: leadHtml(lead, request),
   };
   const confirmation = {
@@ -127,6 +130,7 @@ function confirmationHtml(lead) {
   // text, so nobody can use this form to send our branded email with their own words in it.
   const first = esc(lead.name.split(/\s+/)[0].replace(/[^\p{L}\p{M}'-]/gu, "").slice(0, 30));
   const about = lead.need && lead.need !== "Not sure yet" ? `your ${esc(lead.need.toLowerCase())} enquiry` : "your enquiry";
+  const candidate = lead.need === CANDIDATE;
   const step = (n, title, text) => `<tr>
 <td valign="top" style="padding:0 14px 16px 0;width:30px"><div style="width:28px;height:28px;border-radius:14px;background:#C8F35A;color:#0A0B0A;font:800 13px/28px Arial,sans-serif;text-align:center">${n}</div></td>
 <td valign="top" style="padding:0 0 16px;font:15px/1.5 Arial,sans-serif;color:#333"><strong style="color:#0A0B0A">${title}</strong><br>${text}</td></tr>`;
@@ -143,19 +147,23 @@ function confirmationHtml(lead) {
 <tr><td style="padding:34px 32px 8px">
   <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#6B8F12;text-transform:uppercase">We've got your details</p>
   <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#0A0B0A">Thanks${first ? `, ${first}` : ""}.</h1>
-  <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.</p>
+  <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">${candidate ? "Thanks for joining our talent network. Your details are with our team, and we'll reach out when a role fits." : `Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.`}</p>
   <p style="margin:0 0 14px;font:800 15px Arial,sans-serif;color:#0A0B0A">What happens next</p>
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-  ${step(1, "We review your details", "We look at what you've shared so the first conversation is useful, not generic.")}
-  ${step(2, "We reach out", "Within one business day, by email or phone, to find a time that suits you.")}
-  ${step(3, "Free 1-hour consultation", "We dig into what's going on and you leave knowing whether we can help, even if you never hire us.")}
+  ${candidate
+    ? step(1, "We review your background", "We look at your experience and the roles you're interested in.") +
+      step(2, "We keep you in mind", "When a task force assignment or permanent role fits, we'll reach out.") +
+      step(3, "Send your resume", "Reply to this email with your resume attached so it's on file.")
+    : step(1, "We review your details", "We look at what you've shared so the first conversation is useful, not generic.") +
+      step(2, "We reach out", "Within one business day, by email or phone, to find a time that suits you.") +
+      step(3, "Free 1-hour consultation", "We dig into what's going on and you leave knowing whether we can help, even if you never hire us.")}
   </table>
 </td></tr>
-<tr><td style="padding:8px 32px 30px">
+${candidate ? "" : `<tr><td style="padding:8px 32px 30px">
   <p style="margin:0 0 14px;font:15px/1.5 Arial,sans-serif;color:#333">Rather not wait? Pick a time for your consultation now.</p>
   <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#C8F35A;border-radius:999px">
   <a href="${BOOKING_BY_NEED[lead.need] || BOOKING_URL}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#0A0B0A;text-decoration:none">Book your free 1-hour consultation &rarr;</a>
-  </td></tr></table>
+  </td></tr>`}</table>
 </td></tr>
 <tr><td style="padding:22px 32px;border-top:1px solid #ECECE8;font:14px/1.6 Arial,sans-serif;color:#555">
   Questions in the meantime? Just reply to this email, or reach us at
