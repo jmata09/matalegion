@@ -2,7 +2,7 @@
 // the address is added to the list when the link is clicked (/api/subscribe/confirm).
 
 import { EMAIL_RE, badOrigin, tooLarge } from "../lib/mail.js";
-import { sendOptIn } from "../lib/list.js";
+import { sendOptIn, isSubscribed } from "../lib/list.js";
 
 export async function onRequestPost({ request, env }) {
   const wantsJson = (request.headers.get("accept") || "").includes("application/json");
@@ -31,6 +31,8 @@ export async function onRequestPost({ request, env }) {
   if (!EMAIL_RE.test(email)) return reply(422, { ok: false, error: "invalid_email" });
 
   try {
+    // Already on the list: nothing to send (and nothing to reveal to whoever typed it).
+    if (await isSubscribed(env, email).catch(() => false)) return reply(200, { ok: true });
     await sendOptIn(env, email);
   } catch (err) {
     console.error("optin_failed", err.message);

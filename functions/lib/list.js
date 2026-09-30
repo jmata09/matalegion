@@ -36,20 +36,33 @@ async function getSegmentId(env) {
   return (segmentId = created.data.id);
 }
 
+// True when the address is already on the list and hasn't unsubscribed.
+export async function isSubscribed(env, email) {
+  const res = await resend(env, "GET", `/contacts/${encodeURIComponent(email)}`);
+  return res.ok && res.data?.unsubscribed === false;
+}
+
+// Adds (or re-subscribes) the address. Returns false when it was already subscribed,
+// so callers can skip the welcome and "new subscriber" emails.
 export async function addSubscriber(env, email, firstName) {
   const segment = await getSegmentId(env);
+  const id = encodeURIComponent(email);
+  if (await isSubscribed(env, email)) {
+    await resend(env, "POST", `/contacts/${id}/segments/${segment}`); // make sure it's in the list; harmless if it already is
+    return false;
+  }
   const created = await resend(env, "POST", "/contacts", {
     email,
     first_name: firstName || undefined,
     unsubscribed: false,
     segments: [{ id: segment }],
   });
-  if (created.ok) return;
-  // Already a contact (for example someone who unsubscribed and came back).
-  const id = encodeURIComponent(email);
+  if (created.ok) return true;
+  // Already a contact who had unsubscribed (or isn't in the list yet): switch them back on.
   const updated = await resend(env, "PATCH", `/contacts/${id}`, { unsubscribed: false });
   if (!updated.ok) throw new Error(`contact_update_${updated.status}`);
   await resend(env, "POST", `/contacts/${id}/segments/${segment}`);
+  return true;
 }
 
 export async function removeSubscriber(env, email) {

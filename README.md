@@ -20,7 +20,7 @@ Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No 
 | `functions/api/contact.js` | Receives the contact form and emails it |
 | `functions/api/subscribe.js`, `functions/api/subscribe/confirm.js` | Stay in the Know sign-up and its confirmation link |
 | `functions/api/unsubscribe.js` | Unsubscribe link and the `/unsubscribe` page form |
-| `functions/lib/mail.js`, `functions/lib/list.js` | Shared email sending, signed links, and the Resend mailing list |
+| `functions/lib/mail.js`, `functions/lib/list.js`, `functions/lib/page.js` | Shared email sending, signed links, the Resend mailing list, and the confirm/unsubscribe button page |
 | `check-inbox`, `subscribed`, `subscribe-expired`, `unsubscribe`, `unsubscribed` `.html` | Mailing list pages (not indexed by search engines) |
 | `_headers` | Security headers sent with every page (see Security below) |
 | `_redirects` | Sends old addresses to the right page |
@@ -56,9 +56,11 @@ Until these are set, the form shows visitors your email and phone number instead
 A sign-up box is in every page's footer, and the contact form has a "Keep me in the know" tick-box.
 
 1. **Sign-up:** the visitor gets a confirmation email (double opt-in). Nothing is saved yet.
-2. **Confirm:** clicking the link adds them to Resend **Audience → Contacts**, in the segment **Stay in the Know**. That segment is created automatically on the first sign-up. They get a welcome email, and you get a "New subscriber" email.
+2. **Confirm:** the link opens a page with a **Confirm Subscription** button (email security scanners open links but don't press buttons, so only a real click counts). Pressing it adds them to Resend **Audience → Contacts**, in the segment **Stay in the Know**. That segment is created automatically on the first sign-up. They get a welcome email, and you get a "New subscriber" email.
 3. **Send newsletters** from Resend → **Broadcasts**, choosing the **Stay in the Know** segment. Resend adds its own unsubscribe link and handles it.
-4. **Unsubscribe:** the link in every email, or `/unsubscribe`, which emails the person a one-click link so nobody can remove someone else. It marks the contact as unsubscribed in Resend.
+4. **Unsubscribe:** the link in every email opens a page with an **Unsubscribe Me** button, for the same reason. The `/unsubscribe` page emails the person that link, so nobody can remove someone else. It marks the contact as unsubscribed in Resend.
+
+Repeat sign-ups or clicks from someone already on the list send nothing, so there are no duplicate welcome or "New subscriber" emails.
 
 Uses the existing `RESEND_API_KEY` secret. Optional secrets: `RESEND_SEGMENT_ID` (use a segment you created yourself) and `SUBSCRIBE_SECRET` (the key that signs confirm and unsubscribe links; it defaults to the Resend key, so changing that key invalidates old links).
 

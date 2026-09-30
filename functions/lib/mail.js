@@ -99,10 +99,11 @@ export async function signedUrl(env, path, action, email, expiresAt = 0) {
   return `${SITE}${path}?e=${encodeURIComponent(e)}&x=${expiresAt}&s=${s}`;
 }
 
-export async function verifySigned(env, url, action) {
-  const e = (url.searchParams.get("e") || "").toLowerCase();
-  const x = Number(url.searchParams.get("x") || "0");
-  const s = url.searchParams.get("s") || "";
+// params: anything with .get() (URL search params or submitted form data).
+export async function verifySigned(env, params, action) {
+  const e = String(params.get("e") || "").toLowerCase();
+  const x = Number(params.get("x") || "0");
+  const s = String(params.get("s") || "");
   if (!EMAIL_RE.test(e) || !s) return null;
   if (x && x < Date.now() / 1000) return null;
   const expected = await hmac(env, `${action}:${e}:${x}`);
