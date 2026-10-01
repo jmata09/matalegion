@@ -65,8 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const resume = form.elements.resume;
     const file = resume && !resume.disabled && resume.files[0];
-    if (file && (!/\.(pdf|docx?)$/i.test(file.name) || file.size > 3 * 1024 * 1024)) {
-      return fail("Your resume needs to be a PDF or Word file under 3 MB.", resume);
+    if (file && (!/\.(pdf|docx?)$/i.test(file.name) || file.size > 10 * 1024 * 1024)) {
+      return fail("Your resume needs to be a PDF or Word file under 10 MB.", resume);
     }
     const label = button.innerHTML;
     button.disabled = true;
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.error === "bad_resume" || data.error === "too_large") {
         button.disabled = false;
         button.innerHTML = label;
-        return fail("Your resume needs to be a PDF or Word file under 3 MB.", form.elements.resume);
+        return fail("Your resume needs to be a PDF or Word file under 10 MB.", form.elements.resume);
       }
       throw new Error(data.error || "send_failed");
     } catch (err) {

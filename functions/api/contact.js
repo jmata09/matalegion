@@ -85,7 +85,7 @@ const FROM_NEED = {
   "I'm a candidate (talent network)": "candidate",
 };
 // Resume upload (job seekers only): attached to the lead email, never stored or sent back.
-const RESUME_MAX = 3 * 1024 * 1024;
+const RESUME_MAX = 10 * 1024 * 1024;
 const RESUME_TYPES = {
   pdf: ["application/pdf", [0x25, 0x50, 0x44, 0x46]],
   docx: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", [0x50, 0x4b, 0x03, 0x04]],
@@ -124,7 +124,9 @@ export async function onRequestPost({ request, env }) {
     const value = form.getAll(name).map((v) => String(v).trim()).find(Boolean) || "";
     lead[name] = allowed && !allowed.includes(value) ? "" : value.slice(0, max);
   }
-  if (lead.link && !/^https?:\/\/\S+$/i.test(lead.link)) lead.link = "";
+  // LinkedIn is optional; accept "linkedin.com/in/…" typed without https://.
+  if (lead.link && !/^https?:\/\//i.test(lead.link)) lead.link = `https://${lead.link}`;
+  if (lead.link && !/^https?:\/\/[\w-]+(\.[\w-]+)+\S*$/i.test(lead.link)) lead.link = "";
 
   // Spam traps: a hidden field people never see, and submissions faster than a human can type.
   const started = Number(form.get("t") || 0);
