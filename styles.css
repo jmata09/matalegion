@@ -302,3 +302,4 @@ main { display: block; }
   background: var(--card-2); color: var(--text); font: 600 .88rem var(--sans); cursor: pointer;
 }
 .field input[type=file]:hover::file-selector-button { border-color: var(--lime); }
+.field [aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255, 138, 122, .2); }
