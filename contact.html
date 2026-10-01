@@ -75,46 +75,136 @@
     <div class="card">
       <h2 style="font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:22px">Send your details</h2>
       <form class="form" id="form" action="/api/contact" method="post" novalidate>
-  <div class="row">
-    <div class="field"><label for="f-name">Name *</label><input id="f-name" name="name" autocomplete="name" required maxlength="120"></div>
-    <div class="field"><label for="f-email">Work email *</label><input id="f-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
-  </div>
-  <div class="row">
-    <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40"></div>
-    <div class="field"><label for="f-company">Hotel, restaurant or company *</label><input id="f-company" name="company" autocomplete="organization" required maxlength="160"></div>
-  </div>
-  <div class="row">
-    <div class="field"><label for="f-role">Your role</label>
-      <select id="f-role" name="role">
-        <option value="">Select…</option>
-        <option>General Manager</option>
-        <option>Owner / Asset Manager</option>
-        <option>Restaurant Owner / Operator</option>
-        <option>Management Company</option>
-        <option>Brand / Field Leadership</option>
-        <option>Other</option>
-      </select></div>
-    <div class="field"><label for="f-need">What do you need?</label>
-      <select id="f-need" name="need">
-<option value="">Select…</option>
-<option>Turnaround</option>
-<option>Interim / task force leadership</option>
-<option>Staffing / permanent placement</option>
-<option>Renovation, PIP or opening</option>
-<option>Portfolio program (multiple properties)</option>
-<option>I'm a candidate (talent network)</option>
-<option>Not sure yet</option>
-</select></div>
-  </div>
-  <div class="field"><label for="f-message">What's going on? *</label><textarea id="f-message" name="message" required maxlength="4000" placeholder="Scores, guest complaints, a renovation or relaunch, a menu that isn't working, leadership gaps…"></textarea></div>
-  <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
-  <input type="hidden" name="t" value="">
-  <input type="hidden" name="page" value="/contact">
-  <label class="check"><input type="checkbox" name="newsletter" value="1"> Keep me in the know: send me occasional insights (you can unsubscribe any time)</label>
-  <button class="btn btn-lime btn-lg" type="submit">Send My Details <span class="arrow" aria-hidden="true">→</span></button>
-  <p class="form-status" role="status" aria-live="polite"></p>
-  <p class="small muted">We reply within one business day. No spam, no mailing lists. See our <a href="/privacy">privacy note</a>.</p>
-</form>
+      <fieldset class="choices">
+        <legend>What can we help with? *</legend>
+        <div class="choice-grid">
+        <label class="choice"><input type="radio" name="service" value="turnaround" required><span>Turnaround</span></label>
+        <label class="choice"><input type="radio" name="service" value="staffing" required><span>Hiring: task force or staffing</span></label>
+        <label class="choice"><input type="radio" name="service" value="renovation" required><span>Renovation, PIP or opening</span></label>
+        <label class="choice"><input type="radio" name="service" value="portfolio" required><span>Portfolio program</span></label>
+        <label class="choice"><input type="radio" name="service" value="candidate" required><span>I'm looking for a role</span></label>
+        <label class="choice"><input type="radio" name="service" value="other" required><span>Something else</span></label>
+        </div>
+      </fieldset>
+      <div class="row">
+        <div class="field"><label for="f-name">Name *</label><input id="f-name" name="name" autocomplete="name" required maxlength="120"></div>
+        <div class="field"><label for="f-email">Email *</label><input id="f-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40"></div>
+        <div class="field" data-hide-for="candidate"><label for="f-company">Hotel, restaurant or company *</label><input id="f-company" name="company" autocomplete="organization" required maxlength="160"></div>
+      </div>
+      <fieldset class="svc" data-svc="turnaround">
+        <div class="row">
+          <div class="field"><label for="t-role">Your role</label><select id="t-role" name="role">
+              <option value="">Select…</option>
+              <option>General Manager</option>
+              <option>Owner / Asset Manager</option>
+              <option>Restaurant Owner / Operator</option>
+              <option>Management Company</option>
+              <option>Brand / Field Leadership</option>
+              <option>Other</option>
+            </select></div>
+          <div class="field"><label for="t-location">Property location</label><input id="t-location" name="location" maxlength="120" placeholder="City, country"></div>
+        </div>
+        <div class="field"><label for="t-message">What's going on? *</label><textarea id="t-message" name="message" required maxlength="4000" placeholder="Scores, guest complaints, falling revenue, a team that isn't delivering…"></textarea></div>
+      </fieldset>
+      <fieldset class="svc" data-svc="staffing">
+        <div class="row">
+          <div class="field"><label for="s-position">Role(s) to fill *</label><input id="s-position" name="position" required maxlength="200" placeholder="e.g. General Manager, Executive Chef"></div>
+          <div class="field"><label for="s-location">Property location *</label><input id="s-location" name="location" required maxlength="120" placeholder="City, country"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="s-hire">Interim or permanent?</label><select id="s-hire" name="hire">
+              <option value="">Select…</option>
+              <option>Interim / task force</option>
+              <option>Permanent</option>
+              <option>Both</option>
+              <option>Not sure yet</option>
+            </select></div>
+          <div class="field"><label for="s-start">Needed by</label><select id="s-start" name="start">
+              <option value="">Select…</option>
+              <option>As soon as possible</option>
+              <option>Within 30 days</option>
+              <option>1–3 months</option>
+              <option>3+ months</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="s-message">Anything else we should know?</label><textarea id="s-message" name="message" maxlength="4000" placeholder="Why the role is open, team size, an opening date, what success looks like…"></textarea></div>
+      </fieldset>
+      <fieldset class="svc" data-svc="renovation">
+        <div class="row">
+          <div class="field"><label for="r-project">Type of project</label><select id="r-project" name="project">
+              <option value="">Select…</option>
+              <option>Renovation</option>
+              <option>PIP</option>
+              <option>New opening</option>
+              <option>Reopening</option>
+              <option>Brand conversion</option>
+            </select></div>
+          <div class="field"><label for="r-brand">Brand or flag</label><input id="r-brand" name="brand" maxlength="120" placeholder="e.g. Marriott, independent"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="r-target">Target date</label><input id="r-target" name="target" maxlength="60" placeholder="e.g. Spring 2027"></div>
+          <div class="field"><label for="r-location">Property location</label><input id="r-location" name="location" maxlength="120" placeholder="City, country"></div>
+        </div>
+        <div class="field"><label for="r-message">Tell us about the project *</label><textarea id="r-message" name="message" required maxlength="4000" placeholder="Scope, PIP deadline, budget pressure, where things stand today…"></textarea></div>
+      </fieldset>
+      <fieldset class="svc" data-svc="portfolio">
+        <div class="row">
+          <div class="field"><label for="p-properties">Number of properties</label><select id="p-properties" name="properties">
+              <option value="">Select…</option>
+              <option>2–5</option>
+              <option>6–15</option>
+              <option>16–50</option>
+              <option>50+</option>
+            </select></div>
+          <div class="field"><label for="p-role">Your role</label><select id="p-role" name="role">
+              <option value="">Select…</option>
+              <option>General Manager</option>
+              <option>Owner / Asset Manager</option>
+              <option>Restaurant Owner / Operator</option>
+              <option>Management Company</option>
+              <option>Brand / Field Leadership</option>
+              <option>Other</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="p-message">What do you want to improve across the portfolio? *</label><textarea id="p-message" name="message" required maxlength="4000" placeholder="Service scores, F&amp;B results, leadership bench, consistency between properties…"></textarea></div>
+      </fieldset>
+      <fieldset class="svc" data-svc="candidate">
+        <div class="row">
+          <div class="field"><label for="c-position">Current or most recent role *</label><input id="c-position" name="position" required maxlength="160" placeholder="e.g. Director of F&amp;B"></div>
+          <div class="field"><label for="c-location">Where are you based? *</label><input id="c-location" name="location" required maxlength="120" placeholder="City, country"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="c-hire">Open to</label><select id="c-hire" name="hire">
+              <option value="">Select…</option>
+              <option>Interim / task force</option>
+              <option>Permanent</option>
+              <option>Both</option>
+            </select></div>
+          <div class="field"><label for="c-move">Travel or relocation</label><select id="c-move" name="move">
+              <option value="">Select…</option>
+              <option>Open to travel and relocation</option>
+              <option>Travel only</option>
+              <option>Local roles only</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="c-link">LinkedIn or resume link</label><input id="c-link" name="link" type="url" maxlength="300" placeholder="https://"></div>
+        <div class="field"><label for="c-message">Your experience</label><textarea id="c-message" name="message" maxlength="4000" placeholder="Properties and brands you've worked with, the kind of role you want next…"></textarea></div>
+      </fieldset>
+      <fieldset class="svc" data-svc="other">
+        <div class="field"><label for="o-message">What's going on? *</label><textarea id="o-message" name="message" required maxlength="4000" placeholder="A menu that isn't working, leadership training, anything else…"></textarea></div>
+      </fieldset>
+      <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <input type="hidden" name="t" value="">
+      <input type="hidden" name="page" value="/contact">
+      <label class="check" data-hide-for="candidate"><input type="checkbox" name="newsletter" value="1"> Keep me in the know: send me occasional insights (you can unsubscribe any time)</label>
+      <button class="btn btn-lime btn-lg" type="submit">Send My Details <span class="arrow" aria-hidden="true">→</span></button>
+      <p class="form-status" role="status" aria-live="polite"></p>
+      <p class="small muted form-book">Prefer to talk? <a href="https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled" target="_blank" rel="noopener" data-book>Book a free consultation</a>.</p>
+      <p class="small muted">We reply within one business day. No spam, no mailing lists. See our <a href="/privacy">privacy note</a>.</p>
+    </form>
 
     </div>
   </div>
