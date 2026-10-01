@@ -1,0 +1,65 @@
+name: Bookings setup (one-time)
+
+# Creates the "Staffing & Task Force Consultation" service in Microsoft Bookings
+# and prints its public booking link. Runs only when .github/bookings-setup-request
+# changes. Prints names and public links only (this repo's logs are public).
+
+on:
+  push:
+    paths:
+      - .github/bookings-setup-request
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create staffing booking service
+        env:
+          TENANT: ${{ secrets.GRAPH_TENANT_ID }}
+          CLIENT: ${{ secrets.GRAPH_CLIENT_ID }}
+          SECRET: ${{ secrets.GRAPH_CLIENT_SECRET }}
+          SERVICE_NAME: "Staffing & Task Force Consultation"
+        run: |
+          set -uo pipefail
+          for v in TENANT CLIENT SECRET; do [ -n "${!v}" ] || { echo "::error::GRAPH secret for $v is empty"; exit 1; }; done
+          tok=$(curl -s -X POST "https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token" \
+            --data-urlencode "client_id=$CLIENT" --data-urlencode "client_secret=$SECRET" \
+            --data-urlencode "grant_type=client_credentials" --data-urlencode "scope=https://graph.microsoft.com/.default")
+          access=$(echo "$tok" | jq -r '.access_token // empty')
+          if [ -z "$access" ]; then echo "::error::Sign-in failed: $(echo "$tok" | jq -r '.error + " - " + (.error_description // "" | split("\r")[0])')"; exit 1; fi
+          echo "::add-mask::$access"
+          # Which permissions the app has (from the token itself).
+          payload=$(echo "$access" | cut -d. -f2 | tr '_-' '/+'); while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="$payload="; done
+          echo "App permissions: $(echo "$payload" | base64 -d 2>/dev/null | jq -r '.roles // [] | join(", ")')"
+          g() { curl -s -H "Authorization: Bearer $access" -H "Content-Type: application/json" "$@"; }
+          biz=$(g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses")
+          if [ "$(echo "$biz" | jq -r 'has("error")')" = true ]; then echo "::error::Listing Bookings pages failed: $(echo "$biz" | jq -r '.error.code + " - " + .error.message')"; exit 1; fi
+          echo "Bookings pages: $(echo "$biz" | jq -r '[.value[] | .displayName + " (" + .id + ")"] | join("; ")')"
+          id=$(echo "$biz" | jq -r '[.value[] | select(.id | test("matalegiongroup"; "i"))][0].id // .value[0].id // empty')
+          [ -n "$id" ] || { echo "::error::No Bookings page found"; exit 1; }
+          echo "Using: $id"
+          enc=$(jq -rn --arg v "$id" '$v|@uri')
+          svcs=$(g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services")
+          echo "Existing services:"; echo "$svcs" | jq -r '.value[] | "  - " + .displayName + "  " + (.webUrl // "")'
+          existing=$(echo "$svcs" | jq -r --arg n "$SERVICE_NAME" '[.value[] | select(.displayName == $n)][0].webUrl // empty')
+          if [ -n "$existing" ]; then echo "STAFFING BOOKING LINK (already existed): $existing"; exit 0; fi
+          # Copy staff and scheduling rules from the existing general consultation so it books the same people.
+          template=$(echo "$svcs" | jq -c '[.value[] | select(.isHiddenFromCustomers != true)][0] // .value[0] // {}')
+          body=$(jq -n --arg n "$SERVICE_NAME" --argjson t "$template" '{
+            displayName: $n,
+            description: "A free call about an open role, a leadership gap or staffing for an opening or reopening.",
+            defaultDuration: "PT30M",
+            defaultPrice: 0, defaultPriceType: "free",
+            isLocationOnline: true,
+            isHiddenFromCustomers: false,
+            staffMemberIds: ($t.staffMemberIds // []),
+            schedulingPolicy: ($t.schedulingPolicy // null),
+            defaultReminders: ($t.defaultReminders // []),
+            notes: "Created by the thematalegion.com setup job."
+          } | with_entries(select(.value != null))')
+          created=$(g -X POST "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services" -d "$body")
+          if [ "$(echo "$created" | jq -r 'has("error")')" = true ]; then echo "::error::Creating the service failed: $(echo "$created" | jq -r '.error.code + " - " + .error.message')"; exit 1; fi
+          echo "STAFFING BOOKING LINK: $(echo "$created" | jq -r '.webUrl // "(no link returned)"')"

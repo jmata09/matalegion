@@ -22,8 +22,15 @@ export function tooLarge(request) {
 }
 
 export async function send(env, from, msg) {
-  if (env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET) {
-    return sendWithGraph(env, from, msg);
+  const graph = env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET;
+  if (graph) {
+    try {
+      return await sendWithGraph(env, from, msg);
+    } catch (err) {
+      // Microsoft 365 first; if it fails (missing permission, expired secret), don't lose the email.
+      if (!env.RESEND_API_KEY) throw err;
+      console.error("graph_send_failed_falling_back_to_resend", err.message);
+    }
   }
   if (env.RESEND_API_KEY) {
     return sendWithResend(env, msg);
