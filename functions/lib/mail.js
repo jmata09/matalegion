@@ -23,7 +23,9 @@ export function tooLarge(request, max = MAX_BODY_BYTES) {
 
 // msg: { to, replyTo, subject, html, attachments?: [{ name, type, base64 }] }
 export async function send(env, from, msg) {
-  const graph = env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET;
+  // Microsoft 365 sendMail rejects requests over ~4 MB, so big attachments go through Resend.
+  const big = (msg.attachments || []).reduce((n, a) => n + a.base64.length, 0) > 3 * 1024 * 1024;
+  const graph = env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET && !(big && env.RESEND_API_KEY);
   if (graph) {
     try {
       return await sendWithGraph(env, from, msg);
