@@ -143,24 +143,24 @@ function shell({ preheader, eyebrow, title, body, button, footer }) {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${preheader}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F2EF"><tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden">
-<tr><td style="background:#0A0B0A;padding:22px 32px">
+<tr><td style="background:#173A2B;padding:22px 32px">
   <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-  <td style="width:34px;height:34px;background:#C8F35A;border-radius:9px;text-align:center;font:900 19px/34px Arial,sans-serif;color:#0A0B0A">M</td>
+  <td style="width:34px;height:34px;background:#C8E86A;border-radius:9px;text-align:center;font:900 19px/34px Arial,sans-serif;color:#173A2B">M</td>
   <td style="padding-left:12px;font:900 17px Arial,sans-serif;letter-spacing:.06em;color:#ffffff">MATALEGION</td>
   </tr></table>
 </td></tr>
 <tr><td style="padding:34px 32px 10px">
-  <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#6B8F12;text-transform:uppercase">${eyebrow}</p>
-  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#0A0B0A">${title}</h1>
+  <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#3F6B2A;text-transform:uppercase">${eyebrow}</p>
+  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#173A2B">${title}</h1>
   ${body}
-  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 24px"><tr><td style="background:#C8F35A;border-radius:999px">
-  <a href="${button.href}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#0A0B0A;text-decoration:none">${button.label} &rarr;</a>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 24px"><tr><td style="background:#C8E86A;border-radius:999px">
+  <a href="${button.href}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#173A2B;text-decoration:none">${button.label} &rarr;</a>
   </td></tr></table>
 </td></tr>
 <tr><td style="padding:20px 32px;border-top:1px solid #ECECE8;font:13px/1.6 Arial,sans-serif;color:#777">${footer}</td></tr>
-<tr><td style="background:#0A0B0A;padding:20px 32px;font:13px/1.6 Arial,sans-serif;color:#A8A8A0">
+<tr><td style="background:#173A2B;padding:20px 32px;font:13px/1.6 Arial,sans-serif;color:#A8A8A0">
   <strong style="color:#ffffff">The Matalegion Group</strong> · Matalegion Inc., Las Vegas, NV, USA<br>
-  <a href="${SITE}" style="color:#C8F35A;text-decoration:none">thematalegion.com</a>
+  <a href="${SITE}" style="color:#C8E86A;text-decoration:none">thematalegion.com</a>
 </td></tr>
 </table>
 </td></tr></table></body></html>`;

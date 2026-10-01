@@ -27,7 +27,7 @@ export function page({ title, eyebrow, heading, text, form, status = 200 }) {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/styles.css">
 </head><body>
-<header class="site-header"><nav class="wrap nav" aria-label="Main"><a class="logo" href="/"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#C8F35A"/><path d="M10 29V11l10 13 10-13v18" fill="none" stroke="#0A0B0A" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Matalegion</span></a></nav></header>
+<header class="site-header"><nav class="wrap nav" aria-label="Main"><a class="logo" href="/"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#C8E86A"/><path d="M10 29V11l10 13 10-13v18" fill="none" stroke="#173A2B" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Matalegion</span></a></nav></header>
 <main id="main"><section class="page-head"><div class="wrap">
 <p class="eyebrow">${esc(eyebrow)}</p>
 <h1>${heading}</h1>
