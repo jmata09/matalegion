@@ -7,7 +7,7 @@ const SERVICE_UI = {
   renovation: { submit: "Send My Details", book: "Book a free project consultation", url: "bdcuvxhtrk-cTGIhXJM-1A2" },
   portfolio: { submit: "Send My Details", book: "Book a free portfolio consultation", url: "XUAdwphkc0aUXIA79fdKxA2" },
   candidate: { submit: "Join the Talent Network" },
-  other: { submit: "Send My Details", book: "Book a free consultation", url: "oZgN-DdUXUK05wCIOp6VGA2" },
+  other: { submit: "Send My Details", book: "Book a free consultation", url: "qN74lV3f00qkEt6dNzEtkw2" },
 };
 
 document.addEventListener("DOMContentLoaded", () => {
