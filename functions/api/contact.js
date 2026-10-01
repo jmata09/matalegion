@@ -15,6 +15,7 @@
 import { DEFAULT_MAILBOX, PUBLIC_EMAIL, EMAIL_RE, badOrigin, tooLarge, send, esc } from "../lib/mail.js";
 import { sendOptIn, isSubscribed } from "../lib/list.js";
 import { saveSubmission } from "../lib/records.js";
+import { findOpenRole, place } from "../lib/jobs.js";
 
 const BOOKINGS = "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/";
 const booking = (id) => `${BOOKINGS}${id}?ismsaljsauthenabled`;
@@ -122,6 +123,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
   // Without JavaScript every service's questions are sent, so take the first answer given.
   const lead = { service, page: String(form.get("page") || "").slice(0, 100) };
+  // Applying for a listed role (Jobs page). Only open roles count; anything else is a
+  // general talent-network sign-up. Title and place come from our list, never the form.
+  const role = candidate ? findOpenRole(String(form.get("job") || "")) : null;
+  if (role) Object.assign(lead, { job: role.title, jobSlug: role.slug, jobPlace: place(role) });
   for (const [name, [, max, , allowed]] of Object.entries(fields)) {
     const value = form.getAll(name).map((v) => String(v).trim()).find(Boolean) || "";
     lead[name] = allowed && !allowed.includes(value) ? "" : value.slice(0, max);
@@ -148,7 +153,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const notice = {
     to,
     replyTo: lead.email,
-    subject: candidate
+    subject: lead.job
+      ? `Application: ${lead.job}, ${lead.jobPlace} — ${lead.name}`
+      : candidate
       ? `New candidate: ${lead.name} (${lead.position})`
       : service === "staffing"
         ? `Staffing request: ${lead.position} at ${lead.company}`
@@ -159,7 +166,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const confirmation = {
     to: lead.email,
     replyTo: to,
-    subject: candidate ? "You're in our talent network — The Matalegion Group" : "We've got your details — The Matalegion Group",
+    subject: lead.job ? `We've got your application for ${lead.job} — The Matalegion Group` : candidate ? "You're in our talent network — The Matalegion Group" : "We've got your details — The Matalegion Group",
     html: confirmationHtml(lead),
   };
 
@@ -203,6 +210,7 @@ function leadHtml(lead, fields, request) {
   const row = (label, value) =>
     `<tr><td style="padding:6px 16px 6px 0;color:#666;white-space:nowrap">${label}</td><td style="padding:6px 0">${value}</td></tr>`;
   const rows = [row("Looking for", esc(SERVICES[lead.service].name))];
+  if (lead.job) rows.push(row("Applied for", `<a href="https://thematalegion.com/jobs/${esc(lead.jobSlug)}">${esc(lead.job)}, ${esc(lead.jobPlace)}</a>`));
   for (const [name, [label]] of Object.entries(fields)) {
     if (name === "message" || !lead[name]) continue;
     const v = esc(lead[name]);
@@ -243,7 +251,7 @@ function confirmationHtml(lead) {
 <tr><td style="padding:34px 32px 8px">
   <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#3F6B2A;text-transform:uppercase">We've got your details</p>
   <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#173A2B">Thanks${first ? `, ${first}` : ""}.</h1>
-  <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">${candidate ? "You're now in our talent network. Your details are with our team, and we'll reach out when a task force assignment or permanent role fits." : `Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.`}</p>
+  <p style="margin:0 0 24px;font:16px/1.6 Arial,sans-serif;color:#333">${lead.job ? `Thanks for applying for <strong>${esc(lead.job)}</strong> in ${esc(lead.jobPlace)}. Your application is with our team, and we'll be in touch about next steps. You're also in our talent network, so we'll keep you in mind for other roles that fit.` : candidate ? "You're now in our talent network. Your details are with our team, and we'll reach out when a task force assignment or permanent role fits." : `Thanks for reaching out about ${about}. Your message is with our team, and a real person will be in touch within one business day.`}</p>
   <p style="margin:0 0 14px;font:800 15px Arial,sans-serif;color:#173A2B">What happens next</p>
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
   ${candidate

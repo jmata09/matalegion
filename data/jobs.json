@@ -1,0 +1,29 @@
+[
+  {
+    "slug": "sample-general-manager-las-vegas",
+    "status": "open",
+    "title": "General Manager",
+    "client": "Luxury boutique hotel (confidential)",
+    "city": "Las Vegas", "region": "NV", "country": "US",
+    "type": "Permanent",
+    "pay": { "min": 140000, "max": 170000, "currency": "USD", "period": "year" },
+    "posted": "2026-10-01",
+    "closes": "2026-11-30",
+    "summary": "Lead a 120-key independent luxury hotel through its next chapter: lift guest scores, build a strong leadership team and deliver the owner's plan.",
+    "responsibilities": ["Own guest experience, revenue and P&L", "Coach and develop department heads", "Partner with ownership on capital and brand standards"],
+    "requirements": ["5+ years as GM or hotel manager in luxury or upper-upscale", "Track record of improving guest scores", "Strong rooms and F&B background"]
+  },
+  {
+    "slug": "sample-executive-chef-filled",
+    "status": "closed",
+    "title": "Executive Chef",
+    "client": "Chef-driven restaurant group",
+    "city": "Austin", "region": "TX", "country": "US",
+    "type": "Interim",
+    "pay": { "min": 1200, "max": 1500, "currency": "USD", "period": "day" },
+    "posted": "2026-09-01",
+    "summary": "Interim executive chef for a flagship restaurant during a menu relaunch.",
+    "responsibilities": ["Run the kitchen", "Relaunch the menu"],
+    "requirements": ["Executive chef experience"]
+  }
+]

@@ -1,6 +1,7 @@
 // Keeps a copy of every form submission in OneDrive (Microsoft Graph, app-only), one sheet per type:
 //
-//   Website Submissions/Job Seekers.csv        "I'm looking for a role"
+//   Website Submissions/Job Applications.csv   applications for a listed role (Jobs page)
+//   Website Submissions/Job Seekers.csv        "I'm looking for a role" (talent network)
 //   Website Submissions/Hiring Requests.csv    "I'm hiring: task force or staffing"
 //   Website Submissions/Consulting Leads.csv   turnaround, renovation/PIP/opening, portfolio, something else
 //   Website Submissions/Resumes/               uploaded resumes, linked from Job Seekers
@@ -15,6 +16,14 @@ const FOLDER = "Website Submissions";
 
 // Sheet per service: file name and [column, value] pairs.
 const SHEETS = {
+  application: {
+    file: "Job Applications",
+    columns: (l) => [
+      ["Date", l.date], ["Role", l.job], ["Role location", l.jobPlace], ["Role link", l.jobSlug ? `https://thematalegion.com/jobs/${l.jobSlug}` : ""],
+      ["Name", l.name], ["Email", l.email], ["Phone", l.phone], ["Current role", l.position], ["Based in", l.location],
+      ["Open to", l.hire], ["Travel", l.move], ["LinkedIn", l.link], ["Resume", l.resumeUrl], ["Experience", l.message],
+    ],
+  },
   candidate: {
     file: "Job Seekers",
     columns: (l) => [
@@ -58,7 +67,8 @@ export async function saveSubmission(env, lead, serviceName, resume) {
   };
 
   if (resume) {
-    const name = `${day} ${lead.name.replace(/[^\p{L}\p{M}\w .'-]+/gu, "").slice(0, 60)} - ${resume.name}`;
+    const clean = (t) => t.replace(/[^\p{L}\p{M}\w .'-]+/gu, "").slice(0, 60);
+    const name = `${day} ${clean(lead.name)}${lead.job ? ` - ${clean(lead.job)}` : ""} - ${resume.name}`;
     const res = await g(`${drive}/${path(`${FOLDER}/Resumes/${name}`)}:/content?@microsoft.graph.conflictBehavior=rename`, {
       method: "PUT",
       headers: { "Content-Type": resume.type },
@@ -68,7 +78,7 @@ export async function saveSubmission(env, lead, serviceName, resume) {
     record.resumeUrl = (await res.json()).webUrl || "";
   }
 
-  const sheet = SHEETS[lead.service] || SHEETS.consulting;
+  const sheet = lead.job ? SHEETS.application : SHEETS[lead.service] || SHEETS.consulting;
   const pairs = sheet.columns(record);
   const header = "﻿" + pairs.map(([c]) => cell(c)).join(",") + "\r\n"; // BOM so Excel reads accents correctly
   const line = pairs.map(([, v]) => cell(v)).join(",") + "\r\n";
