@@ -10,3 +10,10 @@
 
 /api/*
   Cache-Control: no-store
+
+# Check for a newer copy on every visit (cheap: unchanged files come back as 304),
+# so a fix to the form script or styles reaches everyone straight away.
+/site.js
+  Cache-Control: no-cache
+/styles.css
+  Cache-Control: no-cache
