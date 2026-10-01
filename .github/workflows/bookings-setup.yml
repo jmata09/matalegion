@@ -38,8 +38,8 @@ jobs:
           biz=$(g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses")
           if [ "$(echo "$biz" | jq -r 'has("error")')" = true ]; then echo "::error::Listing Bookings pages failed: $(echo "$biz" | jq -r '.error.code + " - " + .error.message')"; exit 1; fi
           echo "Bookings pages: $(echo "$biz" | jq -r '[.value[] | .displayName + " (" + .id + ")"] | join("; ")')"
-          id=$(echo "$biz" | jq -r '[.value[] | select(.id | test("matalegiongroup"; "i"))][0].id // .value[0].id // empty')
-          [ -n "$id" ] || { echo "::error::No Bookings page found"; exit 1; }
+          id=$(echo "$biz" | jq -r '[.value[] | select(.id | test("matalegiongroup"; "i"))][0].id // empty')
+          [ -n "$id" ] || { echo "::error::No Matalegion Bookings page found. Are these the Matalegion app keys?"; exit 1; }
           echo "Using: $id"
           enc=$(jq -rn --arg v "$id" '$v|@uri')
           svcs=$(g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services")
