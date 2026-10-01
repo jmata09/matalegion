@@ -16,7 +16,11 @@ Plain HTML and CSS, plus one Cloudflare Pages Function for the contact form. No 
 | `about.html` | About (`/about`) |
 | `contact.html` | Contact (`/contact`) with booking link and form |
 | `thanks.html` | Shown after the form is sent |
-| `privacy.html` | Privacy note |
+| `privacy.html` | Privacy Policy (`/privacy`) |
+| `terms.html` | Terms of Use (`/terms`) |
+| `jobs.html` | Shell for the Jobs pages; filled in by `functions/jobs/[[path]].js` |
+| `data/jobs.json` | Open and closed roles (not published as a file) |
+| `functions/sitemap.xml.js` | Generates `/sitemap.xml`, including open roles |
 | `404.html` | Page not found |
 | `styles.css` | All styling (colors are at the top) |
 | `site.js` | Sends the contact form without leaving the page |
@@ -38,6 +42,32 @@ Every push is published by `.github/workflows/deploy.yml` to the Cloudflare Page
 - push to any other branch → a preview link (shown in the Actions log)
 
 Needs the GitHub secret `CLOUDFLARE_API_TOKEN` (Account → Cloudflare Pages → Edit).
+
+## Jobs (/jobs)
+
+Roles live in `data/jobs.json`. `/jobs` lists open roles; each role has a page at `/jobs/<slug>` with the application form and Google job-search markup. Applications arrive in info.desk as **"Application: <Role>, <Place> — <Name>"**, with the resume attached, and are saved to OneDrive at `Website Submissions/Job Applications.csv` (resumes in `Resumes/`, named with the role).
+
+**Adding a role**: add an entry to `data/jobs.json` (the `//` notes below are explanations only; JSON files can't contain them), then push to a branch, check the preview link, and merge.
+
+```json
+{
+  "slug": "general-manager-las-vegas",          // the URL: /jobs/general-manager-las-vegas (never reuse one)
+  "status": "open",                              // "open" = listed; "closed" = page says filled, hidden from search
+  "title": "General Manager",
+  "client": "Luxury boutique hotel (confidential)",   // shown instead of the client's name if confidential
+  "city": "Las Vegas", "region": "NV", "country": "US",
+  "street": "…", "postalCode": "89109",          // optional; Google likes them, skip for confidential roles
+  "type": "Permanent",                           // Permanent | Interim | Contract
+  "pay": { "min": 140000, "max": 170000, "currency": "USD", "period": "year" },   // required in many states
+  "posted": "2026-10-01",
+  "closes": "2026-11-30",                        // optional; defaults to 60 days after posted
+  "summary": "One or two sentences.",
+  "responsibilities": ["…"],
+  "requirements": ["…"]
+}
+```
+
+**Closing a role**: set `"status": "closed"`. Keep the entry so old links say the role was filled rather than "page not found".
 
 ## Contact form email (Microsoft 365)
 

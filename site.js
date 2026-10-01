@@ -31,9 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
       el.querySelectorAll("input").forEach((input) => (input.disabled = el.hidden));
     });
     const ui = SERVICE_UI[service] || SERVICE_UI.other;
-    button.innerHTML = `${ui.submit} <span class="arrow" aria-hidden="true">→</span>`;
-    book.parentElement.hidden = !ui.book;
-    if (ui.book) {
+    // On a role page (/jobs/<slug>) a job seeker is applying, not just joining the network.
+    const submit = service === "candidate" && form.elements.job?.value ? "Submit Application" : ui.submit;
+    button.innerHTML = `${submit} <span class="arrow" aria-hidden="true">→</span>`;
+    if (book) book.parentElement.hidden = !ui.book;
+    if (book && ui.book) {
       book.textContent = ui.book;
       book.href = `${BOOKINGS}${ui.url}?ismsaljsauthenabled`;
     }
