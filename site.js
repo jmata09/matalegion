@@ -58,13 +58,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el) el.focus();
     };
     if (!radios.some((r) => r.checked)) return fail("Please choose what we can help with.", radios[0]);
-    const missing = [...form.querySelectorAll("[required]")].find((el) => !el.disabled && el.type !== "radio" && !el.value.trim());
-    if (missing) return fail("Please fill in the required fields.", missing);
+    // :disabled (not .disabled) so fields inside the hidden services' sections are skipped.
+    form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    const missing = [...form.querySelectorAll("[required]")].find((el) => !el.matches(":disabled") && el.type !== "radio" && !el.value.trim());
+    if (missing) {
+      missing.setAttribute("aria-invalid", "true");
+      const label = form.querySelector(`label[for="${missing.id}"]`)?.textContent.replace(/\s*\*$/, "") || "the required fields";
+      return fail(`Please fill in: ${label}.`, missing);
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.elements.email.value.trim())) {
+      form.elements.email.setAttribute("aria-invalid", "true");
       return fail("Please enter a valid email address.", form.elements.email);
     }
     const resume = form.elements.resume;
-    const file = resume && !resume.disabled && resume.files[0];
+    const file = resume && !resume.matches(":disabled") && resume.files[0];
     if (file && (!/\.(pdf|docx?)$/i.test(file.name) || file.size > 10 * 1024 * 1024)) {
       return fail("Your resume needs to be a PDF or Word file under 10 MB.", resume);
     }
