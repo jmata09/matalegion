@@ -9,11 +9,11 @@
   --line: #31604C;
   --text: #F7F1DE;
   --muted: #C2C9B8;
-  --faint: #91A595;
+  --faint: #B0BCAB;
   --lime: #C8E86A;
   --lime-dk: #B2D24F;
   --ink-on-lime: #173A2B;
-  --danger: #FF8A7A;
+  --danger: #FF9F92;
   --radius: 20px;
   --display: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
   --mark: "Jost", "Futura", "Century Gothic", var(--sans);
@@ -70,13 +70,13 @@ a { color: inherit; }
 h1, h2, h3 { margin: 0; font-family: var(--display); text-wrap: balance; }
 h1 { font-size: clamp(3rem, 7.2vw, 5.6rem); line-height: 1.02; font-weight: 500; letter-spacing: -.01em; }
 h2 { font-size: clamp(2.3rem, 4.6vw, 3.5rem); line-height: 1.06; font-weight: 500; letter-spacing: -.005em; }
-h3 { font-size: 1.5rem; line-height: 1.2; font-weight: 600; letter-spacing: 0; }
+h3 { font-size: 1.7rem; line-height: 1.18; font-weight: 600; letter-spacing: 0; }
 p { margin: 0; }
 .hl { color: var(--lime); font-style: italic; }
 .strike { text-decoration: line-through; text-decoration-color: var(--lime); text-decoration-thickness: .08em; color: var(--faint); }
 .eyebrow {
   display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px;
-  font: 500 .76rem/1 var(--mark); letter-spacing: .26em; text-transform: uppercase; color: var(--lime);
+  font: 500 .82rem/1.2 var(--mark); letter-spacing: .2em; text-transform: uppercase; color: var(--lime);
 }
 .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--lime); }
 .lead { margin-top: 24px; max-width: 58ch; font-size: clamp(1.08rem, 1.8vw, 1.28rem); color: var(--muted); }
