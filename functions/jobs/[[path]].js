@@ -76,7 +76,14 @@ function jobPosting(r) {
     hiringOrganization: { "@type": "Organization", name: "The Matalegion Group", sameAs: SITE, logo: `${SITE}/favicon.svg` },
     jobLocation: {
       "@type": "Place",
-      address: { "@type": "PostalAddress", addressLocality: r.city, addressRegion: r.region, addressCountry: r.country || "US" },
+      address: {
+        "@type": "PostalAddress",
+        ...(r.street ? { streetAddress: r.street } : {}),
+        addressLocality: r.city,
+        addressRegion: r.region,
+        ...(r.postalCode ? { postalCode: r.postalCode } : {}),
+        addressCountry: r.country || "US",
+      },
     },
     directApply: true,
     url: `${SITE}/jobs/${r.slug}`,

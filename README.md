@@ -56,6 +56,7 @@ Roles live in `data/jobs.json`. `/jobs` lists open roles; each role has a page a
   "title": "General Manager",
   "client": "Luxury boutique hotel (confidential)",   // shown instead of the client's name if confidential
   "city": "Las Vegas", "region": "NV", "country": "US",
+  "street": "…", "postalCode": "89109",          // optional; Google likes them, skip for confidential roles
   "type": "Permanent",                           // Permanent | Interim | Contract
   "pay": { "min": 140000, "max": 170000, "currency": "USD", "period": "year" },   // required in many states
   "posted": "2026-10-01",
