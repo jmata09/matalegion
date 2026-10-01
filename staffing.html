@@ -125,7 +125,7 @@
       <p class="lead">Tell us who you need, or tell us about yourself. We reply within one business day. Rather talk it through? Book a 30-minute hiring call.</p>
       <div class="actions"><a class="btn btn-lime btn-lg" href="https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/xu-5Bt-VHUyu8nMOEUzr5w2?ismsaljsauthenabled" target="_blank" rel="noopener">Book a Hiring Call <span class="arrow" aria-hidden="true">→</span></a></div>
     </div>
-    <div class="card"><form class="form" id="form" action="/api/contact" method="post" novalidate data-default="staffing">
+    <div class="card"><form class="form" id="form" action="/api/contact" method="post" enctype="multipart/form-data" novalidate data-default="staffing">
       <fieldset class="choices">
         <legend>Are you hiring or looking for a role? *</legend>
         <div class="choice-grid">
@@ -183,7 +183,8 @@
               <option>Local roles only</option>
             </select></div>
         </div>
-        <div class="field"><label for="c-link">LinkedIn or resume link</label><input id="c-link" name="link" type="url" maxlength="300" placeholder="https://"></div>
+        <div class="field"><label for="c-resume">Resume (PDF or Word, up to 3 MB)</label><input id="c-resume" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
+        <div class="field"><label for="c-link">LinkedIn profile</label><input id="c-link" name="link" type="url" maxlength="300" placeholder="https://linkedin.com/in/…"></div>
         <div class="field"><label for="c-message">Your experience</label><textarea id="c-message" name="message" maxlength="4000" placeholder="Properties and brands you've worked with, the kind of role you want next…"></textarea></div>
       </fieldset>
       <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>

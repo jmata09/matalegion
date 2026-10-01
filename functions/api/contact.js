@@ -65,7 +65,7 @@ const SERVICES = {
       location: ["Based in", 120, true],
       hire: ["Open to", 40, false, ["Interim / task force", "Permanent", "Both"]],
       move: ["Travel / relocation", 40, false, ["Open to travel and relocation", "Travel only", "Local roles only"]],
-      link: ["LinkedIn or resume link", 300],
+      link: ["LinkedIn", 300],
       message: ["Experience", 4000],
     },
   },
@@ -84,6 +84,13 @@ const FROM_NEED = {
   "Portfolio program (multiple properties)": "portfolio",
   "I'm a candidate (talent network)": "candidate",
 };
+// Resume upload (job seekers only): attached to the lead email, never stored or sent back.
+const RESUME_MAX = 3 * 1024 * 1024;
+const RESUME_TYPES = {
+  pdf: ["application/pdf", [0x25, 0x50, 0x44, 0x46]],
+  docx: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", [0x50, 0x4b, 0x03, 0x04]],
+  doc: ["application/msword", [0xd0, 0xcf, 0x11, 0xe0]],
+};
 const COMMON = { name: ["Name", 120, true], email: ["Email", 200, true], phone: ["Phone", 40], company: ["Hotel, restaurant or company", 160, true] };
 
 export async function onRequestPost({ request, env }) {
@@ -96,7 +103,7 @@ export async function onRequestPost({ request, env }) {
         : new Response("Sorry, that didn't send. Please email " + PUBLIC_EMAIL, { status });
 
   if (badOrigin(request)) return reply(403, { ok: false, error: "forbidden" });
-  if (tooLarge(request)) return reply(413, { ok: false, error: "too_large" });
+  if (tooLarge(request, RESUME_MAX + 64 * 1024)) return reply(413, { ok: false, error: "too_large" });
 
   let form;
   try {
@@ -128,6 +135,10 @@ export async function onRequestPost({ request, env }) {
   const missing = Object.entries(fields).some(([name, [, , required]]) => required && !lead[name]);
   if (missing || !EMAIL_RE.test(lead.email)) return reply(422, { ok: false, error: "missing_fields" });
 
+  const resume = candidate ? await readResume(form.get("resume")) : null;
+  if (resume?.error) return reply(422, { ok: false, error: resume.error });
+  lead.resume = resume?.name || "";
+
   const from = env.MAIL_FROM || DEFAULT_MAILBOX;
   const to = env.LEAD_TO || PUBLIC_EMAIL;
   const notice = {
@@ -139,6 +150,7 @@ export async function onRequestPost({ request, env }) {
         ? `Staffing request: ${lead.position} at ${lead.company}`
         : `New lead (${SERVICES[service].name}): ${lead.company} (${lead.name})`,
     html: leadHtml(lead, fields, request),
+    attachments: resume ? [resume] : [],
   };
   const confirmation = {
     to: lead.email,
@@ -166,6 +178,19 @@ export async function onRequestPost({ request, env }) {
   return reply(200, { ok: true });
 }
 
+// A PDF or Word file (checked by its first bytes, not just its name) up to RESUME_MAX.
+async function readResume(file) {
+  if (!file || typeof file === "string" || !file.size) return null;
+  const kind = RESUME_TYPES[(file.name.match(/\.([a-z]+)$/i)?.[1] || "").toLowerCase()];
+  if (!kind || file.size > RESUME_MAX) return { error: "bad_resume" };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!kind[1].every((b, i) => bytes[i] === b)) return { error: "bad_resume" };
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  const name = file.name.replace(/[^\w.\- ]+/g, "_").slice(-100);
+  return { name, type: kind[0], base64: btoa(binary) };
+}
+
 function leadHtml(lead, fields, request) {
   const row = (label, value) =>
     `<tr><td style="padding:6px 16px 6px 0;color:#666;white-space:nowrap">${label}</td><td style="padding:6px 0">${value}</td></tr>`;
@@ -175,6 +200,7 @@ function leadHtml(lead, fields, request) {
     const v = esc(lead[name]);
     rows.push(row(label, name === "email" ? `<a href="mailto:${v}">${v}</a>` : name === "link" ? `<a href="${v}">${v}</a>` : v));
   }
+  if (lead.resume) rows.push(row("Resume", `attached (${esc(lead.resume)})`));
   if (lead.page) rows.push(row("Sent from", esc(lead.page)));
   const where = [request.cf?.city, request.cf?.region, request.cf?.country].filter(Boolean).join(", ");
   if (where) rows.push(row("Visitor location", esc(where)));
@@ -215,7 +241,9 @@ function confirmationHtml(lead) {
   ${candidate
     ? step(1, "We review your background", "We look at your experience and the roles you're interested in.") +
       step(2, "We keep you in mind", "When a task force assignment or permanent role fits, we'll reach out.") +
-      step(3, "Send your resume", "Reply to this email with your resume attached so it's on file.")
+      (lead.resume
+        ? step(3, "Your resume is on file", "We've got it with your details. Reply with an updated version any time.")
+        : step(3, "Send your resume", "Reply to this email with your resume attached so it's on file."))
     : staffing
     ? step(1, "We review the role", "We look at the property, the position and your timing.") +
       step(2, "We reach out", "Within one business day, to talk through the brief.") +

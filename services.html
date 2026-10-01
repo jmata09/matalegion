@@ -131,7 +131,7 @@
       <p class="lead">A free 1-hour consultation is the fastest way to know what fits and what it will take. Or send your details and we'll reply within one business day.</p>
       <div class="actions"><a class="btn btn-lime btn-lg" href="https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/oZgN-DdUXUK05wCIOp6VGA2?ismsaljsauthenabled" target="_blank" rel="noopener">Book a Free Consultation <span class="arrow" aria-hidden="true">→</span></a></div>
     </div>
-    <div class="card"><form class="form" id="form" action="/api/contact" method="post" novalidate>
+    <div class="card"><form class="form" id="form" action="/api/contact" method="post" enctype="multipart/form-data" novalidate>
       <fieldset class="choices">
         <legend>What can we help with? *</legend>
         <div class="choice-grid">
@@ -247,7 +247,8 @@
               <option>Local roles only</option>
             </select></div>
         </div>
-        <div class="field"><label for="c-link">LinkedIn or resume link</label><input id="c-link" name="link" type="url" maxlength="300" placeholder="https://"></div>
+        <div class="field"><label for="c-resume">Resume (PDF or Word, up to 3 MB)</label><input id="c-resume" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
+        <div class="field"><label for="c-link">LinkedIn profile</label><input id="c-link" name="link" type="url" maxlength="300" placeholder="https://linkedin.com/in/…"></div>
         <div class="field"><label for="c-message">Your experience</label><textarea id="c-message" name="message" maxlength="4000" placeholder="Properties and brands you've worked with, the kind of role you want next…"></textarea></div>
       </fieldset>
       <fieldset class="svc" data-svc="other">

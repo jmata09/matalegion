@@ -17,10 +17,11 @@ export function badOrigin(request) {
   return Boolean(origin && !ALLOWED_ORIGIN.test(origin));
 }
 
-export function tooLarge(request) {
-  return Number(request.headers.get("content-length") || 0) > MAX_BODY_BYTES;
+export function tooLarge(request, max = MAX_BODY_BYTES) {
+  return Number(request.headers.get("content-length") || 0) > max;
 }
 
+// msg: { to, replyTo, subject, html, attachments?: [{ name, type, base64 }] }
 export async function send(env, from, msg) {
   const graph = env.GRAPH_TENANT_ID && env.GRAPH_CLIENT_ID && env.GRAPH_CLIENT_SECRET;
   if (graph) {
@@ -38,7 +39,7 @@ export async function send(env, from, msg) {
   throw new Error("no_mail_provider_configured");
 }
 
-export async function sendWithGraph(env, from, { to, replyTo, subject, html }) {
+export async function sendWithGraph(env, from, { to, replyTo, subject, html, attachments = [] }) {
   const tokenRes = await fetch(
     `https://login.microsoftonline.com/${encodeURIComponent(env.GRAPH_TENANT_ID)}/oauth2/v2.0/token`,
     {
@@ -64,6 +65,12 @@ export async function sendWithGraph(env, from, { to, replyTo, subject, html }) {
         body: { contentType: "HTML", content: html },
         toRecipients: [{ emailAddress: { address: to } }],
         replyTo: [{ emailAddress: { address: replyTo } }],
+        attachments: attachments.map((a) => ({
+          "@odata.type": "#microsoft.graph.fileAttachment",
+          name: a.name,
+          contentType: a.type,
+          contentBytes: a.base64,
+        })),
       },
       saveToSentItems: true,
     }),
@@ -71,7 +78,7 @@ export async function sendWithGraph(env, from, { to, replyTo, subject, html }) {
   if (!res.ok) throw new Error(`graph_sendmail_${res.status}: ${(await res.text()).slice(0, 200)}`);
 }
 
-async function sendWithResend(env, { to, replyTo, subject, html }) {
+async function sendWithResend(env, { to, replyTo, subject, html, attachments = [] }) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
@@ -81,6 +88,7 @@ async function sendWithResend(env, { to, replyTo, subject, html }) {
       reply_to: replyTo,
       subject,
       html,
+      attachments: attachments.map((a) => ({ filename: a.name, content: a.base64 })),
     }),
   });
   if (!res.ok) throw new Error(`resend_${res.status}: ${(await res.text()).slice(0, 200)}`);

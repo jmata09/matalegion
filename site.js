@@ -63,6 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.elements.email.value.trim())) {
       return fail("Please enter a valid email address.", form.elements.email);
     }
+    const resume = form.elements.resume;
+    const file = resume && !resume.disabled && resume.files[0];
+    if (file && (!/\.(pdf|docx?)$/i.test(file.name) || file.size > 3 * 1024 * 1024)) {
+      return fail("Your resume needs to be a PDF or Word file under 3 MB.", resume);
+    }
     const label = button.innerHTML;
     button.disabled = true;
     button.textContent = "Sending…";
@@ -76,6 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok && data.ok) {
         window.location.href = "/thanks";
         return;
+      }
+      if (data.error === "bad_resume" || data.error === "too_large") {
+        button.disabled = false;
+        button.innerHTML = label;
+        return fail("Your resume needs to be a PDF or Word file under 3 MB.", form.elements.resume);
       }
       throw new Error(data.error || "send_failed");
     } catch (err) {
