@@ -5,7 +5,8 @@
 // only if Microsoft 365 isn't configured.
 //
 // Settings (Cloudflare Pages project > Settings > Variables and Secrets):
-//   GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET  Entra app with Mail.Send (application)
+//   GRAPH_TENANT_ID, GRAPH_CLIENT_ID, GRAPH_CLIENT_SECRET  Entra app with Mail.Send and Files.ReadWrite.All
+//               (application) — the second saves each submission to OneDrive (lib/records.js)
 //   MAIL_FROM   mailbox the app sends as     (default TheMatalegionGroup@Matalegion.com)
 //   LEAD_TO     where new leads are delivered (default info.desk@matalegion.com,
 //               an M365 alias on j.mata@)
@@ -13,6 +14,7 @@
 
 import { DEFAULT_MAILBOX, PUBLIC_EMAIL, EMAIL_RE, badOrigin, tooLarge, send, esc } from "../lib/mail.js";
 import { sendOptIn, isSubscribed } from "../lib/list.js";
+import { saveSubmission } from "../lib/records.js";
 
 const BOOKINGS = "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/";
 const booking = (id) => `${BOOKINGS}${id}?ismsaljsauthenabled`;
@@ -93,7 +95,7 @@ const RESUME_TYPES = {
 };
 const COMMON = { name: ["Name", 120, true], email: ["Email", 200, true], phone: ["Phone", 40], company: ["Hotel, restaurant or company", 160, true] };
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const wantsJson = (request.headers.get("accept") || "").includes("application/json");
   const reply = (status, body) =>
     wantsJson
@@ -167,6 +169,10 @@ export async function onRequestPost({ request, env }) {
     console.error("lead_send_failed", err.message);
     return reply(502, { ok: false, error: "send_failed" });
   }
+  // Copy to the OneDrive sheets in the background; the email above is the record of last resort.
+  const saving = saveSubmission(env, lead, SERVICES[service].name, resume).catch((err) => console.error("records_failed", err.message));
+  if (waitUntil) waitUntil(saving);
+  else await saving;
   // The lead is safe; a failed confirmation shouldn't fail the visitor's submit.
   await send(env, from, confirmation).catch((err) => console.error("confirmation_failed", err.message));
   // Ticked "Keep me in the know": send the mailing-list confirmation link too.

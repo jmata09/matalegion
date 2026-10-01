@@ -41,7 +41,8 @@ export async function send(env, from, msg) {
   throw new Error("no_mail_provider_configured");
 }
 
-export async function sendWithGraph(env, from, { to, replyTo, subject, html, attachments = [] }) {
+// App-only Microsoft Graph access token (client credentials).
+export async function graphToken(env) {
   const tokenRes = await fetch(
     `https://login.microsoftonline.com/${encodeURIComponent(env.GRAPH_TENANT_ID)}/oauth2/v2.0/token`,
     {
@@ -57,10 +58,15 @@ export async function sendWithGraph(env, from, { to, replyTo, subject, html, att
   );
   const token = await tokenRes.json().catch(() => ({}));
   if (!token.access_token) throw new Error(`graph_token_${tokenRes.status}: ${token.error || ""}`);
+  return token.access_token;
+}
+
+export async function sendWithGraph(env, from, { to, replyTo, subject, html, attachments = [] }) {
+  const access = await graphToken(env);
 
   const res = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(from)}/sendMail`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token.access_token}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${access}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       message: {
         subject,
