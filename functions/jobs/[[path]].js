@@ -124,7 +124,6 @@ export async function onRequestGet({ request, env, params }) {
     set('meta[property="og:description"]', (el) => el.setAttribute("content", desc));
     set("#jobs-eyebrow", (el) => el.setInnerContent(role.client));
     set("#jobs-title", (el) => el.setInnerContent(`${esc(role.title)}<span class="hl">.</span>`, { html: true }));
-    set("#jobs-lead", (el) => el.remove());
   }
   if (isOpen) {
     set("#apply-role", (el) => el.setInnerContent(`${role.title}.`));
