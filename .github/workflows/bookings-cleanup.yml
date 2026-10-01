@@ -1,0 +1,45 @@
+name: Bookings cleanup (one-time)
+
+# Removes the "Staffing & Task Force Consultation" service that the setup job
+# created on the wrong Bookings page (Charlie's Call To Duty). Deletes only a
+# service on that page, with that exact name, tagged as made by the setup job.
+
+on:
+  push:
+    paths:
+      - .github/bookings-cleanup-request
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove stray staffing service
+        env:
+          TENANT: ${{ secrets.GRAPH_TENANT_ID }}
+          CLIENT: ${{ secrets.GRAPH_CLIENT_ID }}
+          SECRET: ${{ secrets.GRAPH_CLIENT_SECRET }}
+          BUSINESS: "CharliesCallToDuty2@charliescalltoduty.org"
+          SERVICE_NAME: "Staffing & Task Force Consultation"
+        run: |
+          set -uo pipefail
+          tok=$(curl -s -X POST "https://login.microsoftonline.com/$TENANT/oauth2/v2.0/token" \
+            --data-urlencode "client_id=$CLIENT" --data-urlencode "client_secret=$SECRET" \
+            --data-urlencode "grant_type=client_credentials" --data-urlencode "scope=https://graph.microsoft.com/.default")
+          access=$(echo "$tok" | jq -r '.access_token // empty')
+          [ -n "$access" ] || { echo "::error::Sign-in failed"; exit 1; }
+          echo "::add-mask::$access"
+          g() { curl -s -H "Authorization: Bearer $access" -H "Content-Type: application/json" "$@"; }
+          enc=$(jq -rn --arg v "$BUSINESS" '$v|@uri')
+          svcs=$(g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services")
+          if [ "$(echo "$svcs" | jq -r 'has("error")')" = true ]; then echo "::error::$(echo "$svcs" | jq -r '.error.code + " - " + .error.message')"; exit 1; fi
+          ids=$(echo "$svcs" | jq -r --arg n "$SERVICE_NAME" '.value[] | select(.displayName == $n and ((.notes // "") | test("thematalegion.com setup job"))) | .id')
+          [ -n "$ids" ] || { echo "Nothing to remove."; exit 0; }
+          for id in $ids; do
+            code=$(g -o /dev/null -w '%{http_code}' -X DELETE "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services/$id")
+            [ "$code" = 204 ] || { echo "::error::Delete failed (HTTP $code)"; exit 1; }
+            echo "Removed '$SERVICE_NAME' from $BUSINESS"
+          done
+          echo "Remaining services:"; g "https://graph.microsoft.com/v1.0/solutions/bookingBusinesses/$enc/services" | jq -r '.value[] | "  - " + .displayName'
