@@ -8,7 +8,7 @@
 import { EMAIL_RE, badOrigin, tooLarge, verifySigned } from "../lib/mail.js";
 import { removeSubscriber, sendUnsubscribeLink } from "../lib/list.js";
 import { page } from "../lib/page.js";
-import { badTiming, rateLimited } from "../lib/spam.js";
+import { badTiming, rateLimited, failsTurnstile } from "../lib/spam.js";
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
@@ -59,6 +59,8 @@ export async function onRequestPost({ request, env }) {
   const email = String(form.get("email") || "").trim().toLowerCase().slice(0, 200);
   const timing = badTiming(form, 1500);
   if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
+  const turnstile = await failsTurnstile(env, form, request);
+  if (turnstile) return (console.log("spam_blocked", turnstile), reply(400, { ok: false, error: "verification_failed" }));
   if (form.get("website") || timing || (await rateLimited(request, "unsubscribe"))) {
     console.log("spam_dropped", form.get("website") ? "honeypot" : timing || "rate_limit");
     return reply(200, { ok: true });

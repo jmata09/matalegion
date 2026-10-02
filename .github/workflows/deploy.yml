@@ -85,9 +85,10 @@ jobs:
           LEAD_TO: ${{ secrets.LEAD_TO }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM: ${{ secrets.RESEND_FROM }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
         run: |
           set -euo pipefail
-          vars=$(jq -n 'reduce ($ENV | to_entries[] | select(.key | IN("GRAPH_TENANT_ID","GRAPH_CLIENT_ID","GRAPH_CLIENT_SECRET","MAIL_FROM","LEAD_TO","RESEND_API_KEY","RESEND_FROM")) | select(.value != "")) as $e ({}; .[$e.key] = {type: "secret_text", value: $e.value})')
+          vars=$(jq -n 'reduce ($ENV | to_entries[] | select(.key | IN("GRAPH_TENANT_ID","GRAPH_CLIENT_ID","GRAPH_CLIENT_SECRET","MAIL_FROM","LEAD_TO","RESEND_API_KEY","RESEND_FROM","TURNSTILE_SECRET_KEY")) | select(.value != "")) as $e ({}; .[$e.key] = {type: "secret_text", value: $e.value})')
           if [ "$vars" = "{}" ]; then
             echo "::warning::No form email settings saved in GitHub yet; the contact form will show a fallback message until they are."
             exit 0

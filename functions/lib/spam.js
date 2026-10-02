@@ -49,3 +49,28 @@ export function looksSuspicious(lead) {
   if (/^(google|yandex|facebook|test|n\/?a|none)$/i.test(String(lead.company || "").trim())) return "fake_company";
   return "";
 }
+
+// Cloudflare Turnstile: the widget in each form adds "cf-turnstile-response"; Cloudflare
+// confirms it came from a person on our site. Returns "" when it passes, or a reason.
+// Skipped while TURNSTILE_SECRET_KEY isn't set, so the forms keep working without it.
+export async function failsTurnstile(env, form, request) {
+  if (!env.TURNSTILE_SECRET_KEY) return "";
+  const token = String(form.get("cf-turnstile-response") || "");
+  if (!token) return "no_token";
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: request.headers.get("cf-connecting-ip") || "",
+      }),
+    });
+    const out = await res.json();
+    return out.success ? "" : `turnstile_${(out["error-codes"] || []).join(",") || "failed"}`;
+  } catch (err) {
+    // If Cloudflare can't be reached, don't lose a real lead; the other traps still apply.
+    console.error("turnstile_unreachable", err.message);
+    return "";
+  }
+}

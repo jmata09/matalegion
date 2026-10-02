@@ -16,7 +16,7 @@ import { DEFAULT_MAILBOX, PUBLIC_EMAIL, EMAIL_RE, badOrigin, tooLarge, send, esc
 import { sendOptIn, isSubscribed } from "../lib/list.js";
 import { saveSubmission } from "../lib/records.js";
 import { findOpenRole, place } from "../lib/jobs.js";
-import { badTiming, rateLimited, knownBot, looksSuspicious } from "../lib/spam.js";
+import { badTiming, rateLimited, knownBot, looksSuspicious, failsTurnstile } from "../lib/spam.js";
 
 const BOOKINGS = "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/";
 const booking = (id) => `${BOOKINGS}${id}?ismsaljsauthenabled`;
@@ -144,6 +144,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
   if (timing) return drop(timing);
   if (await rateLimited(request, "contact")) return drop("rate_limit");
+  // Failed human check: a real person sees "please try again or email us" (site.js).
+  const turnstile = await failsTurnstile(env, form, request);
+  if (turnstile) return (console.log("spam_blocked", turnstile), reply(400, { ok: false, error: "verification_failed" }));
 
   const missing = Object.entries(fields).some(([name, [, , required]]) => required && !lead[name]);
   if (missing || !EMAIL_RE.test(lead.email)) return reply(422, { ok: false, error: "missing_fields" });

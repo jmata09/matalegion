@@ -16,8 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Jost:wght@400;500&family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/styles.css?v=7">
-<script src="/site.js?v=4" defer></script>
+<link rel="stylesheet" href="/styles.css?v=8">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="/site.js?v=5" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -45,7 +46,7 @@
   <div class="wrap">
     <p class="eyebrow">Legal</p>
     <h1>Privacy <span class="hl">policy.</span></h1>
-    <p class="lead">Effective October 1, 2026</p>
+    <p class="lead">Effective October 2, 2026</p>
   </div>
 </section>
 <section class="section-tight" style="padding-top:0">
@@ -65,7 +66,7 @@
     <p><strong>When you apply to our talent network.</strong> Your current or most recent role, where you're based, the kind of work you're open to, your LinkedIn profile, your experience and, if you upload one, your resume. Please don't include sensitive details we don't need, such as government ID numbers, health information or date of birth.</p>
     <p><strong>When you book a call.</strong> Booking runs on Microsoft Bookings, which collects your name, email, phone number, the time you choose and any notes you add.</p>
     <p><strong>When you join our mailing list.</strong> Your email address, and the date you confirmed your subscription.</p>
-    <p><strong>Automatically.</strong> Like every website, our hosting provider receives technical information such as your IP address, browser type and the pages you request, which is used to deliver the site and protect it from abuse. Fonts on this site are loaded from Google Fonts, so Google receives your IP address when a page loads. We may use Cloudflare Web Analytics, which counts visits without cookies and without identifying you.</p>
+    <p><strong>Automatically.</strong> Like every website, our hosting provider receives technical information such as your IP address, browser type and the pages you request, which is used to deliver the site and protect it from abuse. Fonts on this site are loaded from Google Fonts, so Google receives your IP address when a page loads. We may use Cloudflare Web Analytics, which counts visits without cookies and without identifying you. Our forms use Cloudflare Turnstile to check that a person, not a bot, is sending them; it looks at signals from your browser and device and doesn't use advertising cookies.</p>
 
     <h2 id="use">How we use it</h2>
     <ul class="legal-list">
@@ -81,7 +82,7 @@
     <h2 id="share">Who we share it with</h2>
     <p>We don't sell your personal information or share it for cross-context behavioural advertising. We share it only with:</p>
     <ul class="legal-list">
-      <li><strong>Service providers</strong> who process it for us under contract: Microsoft (email, Bookings, and storage of submissions and resumes in OneDrive), Resend (sending email and holding our mailing list), Cloudflare (website hosting and security) and Google (fonts).</li>
+      <li><strong>Service providers</strong> who process it for us under contract: Microsoft (email, Bookings, and storage of submissions and resumes in OneDrive), Resend (sending email and holding our mailing list), Cloudflare (website hosting, security and the Turnstile spam check) and Google (fonts).</li>
       <li><strong>Prospective employers</strong>, if you're a job seeker, and only after we've discussed a specific role with you.</li>
       <li><strong>Professional advisers and authorities</strong>, when required by law, to enforce our terms, or to protect our rights or someone's safety.</li>
       <li><strong>A buyer or successor</strong>, if our business is sold or reorganised, who would be bound by this policy.</li>
@@ -178,6 +179,7 @@
         <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="Your work email">
         <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
         <input type="hidden" name="t" value="">
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-appearance="interaction-only" data-theme="dark" data-size="flexible"></div>
         <button class="btn btn-lime" type="submit">Subscribe</button>
         <p class="signup-status small" role="status" aria-live="polite"></p>
       </form>

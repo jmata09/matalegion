@@ -1,3 +1,9 @@
+// Cloudflare Turnstile tokens work once: get a fresh one after every attempt.
+const resetHumanCheck = (form) => {
+  const widget = form.querySelector(".cf-turnstile");
+  if (widget && window.turnstile) window.turnstile.reset(widget);
+};
+
 // Contact form: "What can we help with?" picks the questions shown below it, then the
 // form submits in place (falls back to a normal POST if JS fails).
 const BOOKINGS = "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/";
@@ -91,6 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/thanks";
         return;
       }
+      if (data.error === "verification_failed") {
+        resetHumanCheck(form);
+        button.disabled = false;
+        button.innerHTML = label;
+        return fail("We couldn't confirm you're a person. Please try again in a moment.");
+      }
       if (data.error === "bad_resume" || data.error === "too_large") {
         button.disabled = false;
         button.innerHTML = label;
@@ -98,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       throw new Error(data.error || "send_failed");
     } catch (err) {
+      resetHumanCheck(form);
       status.className = "form-status error";
       status.innerHTML = 'That didn\'t go through. Please email <a href="mailto:info.desk@matalegion.com">info.desk@matalegion.com</a> or call +1 702.818.7003.';
       button.disabled = false;
@@ -141,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         status.className += " error";
         status.textContent = "That didn't work. Please try again in a moment.";
       } finally {
+        resetHumanCheck(form);
         button.disabled = false;
         button.textContent = label;
       }
