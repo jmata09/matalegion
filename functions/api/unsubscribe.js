@@ -8,6 +8,7 @@
 import { EMAIL_RE, badOrigin, tooLarge, verifySigned } from "../lib/mail.js";
 import { removeSubscriber, sendUnsubscribeLink } from "../lib/list.js";
 import { page } from "../lib/page.js";
+import { badTiming, rateLimited } from "../lib/spam.js";
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
@@ -56,7 +57,12 @@ export async function onRequestPost({ request, env }) {
 
   // The /unsubscribe page: email a signed link to the address given.
   const email = String(form.get("email") || "").trim().toLowerCase().slice(0, 200);
-  if (form.get("website")) return reply(200, { ok: true });
+  const timing = badTiming(form, 1500);
+  if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
+  if (form.get("website") || timing || (await rateLimited(request, "unsubscribe"))) {
+    console.log("spam_dropped", form.get("website") ? "honeypot" : timing || "rate_limit");
+    return reply(200, { ok: true });
+  }
   if (!EMAIL_RE.test(email)) return reply(422, { ok: false, error: "invalid_email" });
   try {
     await sendUnsubscribeLink(env, email);

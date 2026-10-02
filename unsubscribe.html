@@ -47,6 +47,7 @@
     <h1>Stop getting <span class="hl">our emails.</span></h1>
     <p class="lead">The fastest way is the unsubscribe link at the bottom of any email from us. Or enter your address and we'll email you a one-click unsubscribe link, which makes sure only you can take your address off the list.</p>
     <form class="form signup-page" action="/api/unsubscribe" method="post" novalidate style="max-width:520px;margin-top:28px">
+      <input type="hidden" name="t" value="">
       <div class="field"><label for="u-email">Your email address</label><input id="u-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
       <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
       <button class="btn btn-lime btn-lg" type="submit">Send Unsubscribe Link</button>

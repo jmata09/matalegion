@@ -3,6 +3,7 @@
 
 import { EMAIL_RE, badOrigin, tooLarge } from "../lib/mail.js";
 import { sendOptIn, isSubscribed } from "../lib/list.js";
+import { badTiming, rateLimited } from "../lib/spam.js";
 
 export async function onRequestPost({ request, env }) {
   const wantsJson = (request.headers.get("accept") || "").includes("application/json");
@@ -24,9 +25,13 @@ export async function onRequestPost({ request, env }) {
   }
   const email = String(form.get("email") || "").trim().toLowerCase().slice(0, 200);
 
-  // Same spam traps as the contact form: a hidden field and a too-fast submit.
-  const started = Number(form.get("t") || 0);
-  if (form.get("website") || (started && Date.now() - started < 1500)) return reply(200, { ok: true });
+  // Spam traps (functions/lib/spam.js): bots get a normal reply and no email is sent.
+  const timing = badTiming(form, 1500);
+  if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
+  if (form.get("website") || timing || (await rateLimited(request, "subscribe"))) {
+    console.log("spam_dropped", form.get("website") ? "honeypot" : timing || "rate_limit");
+    return reply(200, { ok: true });
+  }
 
   if (!EMAIL_RE.test(email)) return reply(422, { ok: false, error: "invalid_email" });
 

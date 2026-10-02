@@ -16,6 +16,7 @@ import { DEFAULT_MAILBOX, PUBLIC_EMAIL, EMAIL_RE, badOrigin, tooLarge, send, esc
 import { sendOptIn, isSubscribed } from "../lib/list.js";
 import { saveSubmission } from "../lib/records.js";
 import { findOpenRole, place } from "../lib/jobs.js";
+import { badTiming, rateLimited, knownBot, looksSuspicious } from "../lib/spam.js";
 
 const BOOKINGS = "https://bookings.cloud.microsoft/book/TheMatalegionGroup@Matalegion.com/s/";
 const booking = (id) => `${BOOKINGS}${id}?ismsaljsauthenabled`;
@@ -135,14 +136,21 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (lead.link && !/^https?:\/\//i.test(lead.link)) lead.link = `https://${lead.link}`;
   if (lead.link && !/^https?:\/\/[\w-]+(\.[\w-]+)+\S*$/i.test(lead.link)) lead.link = "";
 
-  // Spam traps: a hidden field people never see, and submissions faster than a human can type.
-  const started = Number(form.get("t") || 0);
-  if (form.get("website") || (started && Date.now() - started < 2500)) {
-    return reply(200, { ok: true });
-  }
+  // Spam traps (functions/lib/spam.js). Bots get a normal-looking reply and nothing is sent.
+  const drop = (why) => (console.log("spam_dropped", why), reply(200, { ok: true }));
+  if (form.get("website")) return drop("honeypot");
+  const timing = badTiming(form);
+  // No page timestamp: not posted from our page (or scripts are blocked), so ask them to email.
+  if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
+  if (timing) return drop(timing);
+  if (await rateLimited(request, "contact")) return drop("rate_limit");
 
   const missing = Object.entries(fields).some(([name, [, , required]]) => required && !lead[name]);
   if (missing || !EMAIL_RE.test(lead.email)) return reply(422, { ok: false, error: "missing_fields" });
+
+  const bot = knownBot(lead);
+  if (bot) return drop(bot);
+  const suspicious = looksSuspicious(lead);
 
   const resume = candidate ? await readResume(form.get("resume")) : null;
   if (resume?.error) return reply(422, { ok: false, error: resume.error });
@@ -153,13 +161,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const notice = {
     to,
     replyTo: lead.email,
-    subject: lead.job
+    subject: (suspicious ? "[Possible spam] " : "") + (lead.job
       ? `Application: ${lead.job}, ${lead.jobPlace} — ${lead.name}`
       : candidate
       ? `New candidate: ${lead.name} (${lead.position})`
       : service === "staffing"
         ? `Staffing request: ${lead.position} at ${lead.company}`
-        : `New lead (${SERVICES[service].name}): ${lead.company} (${lead.name})`,
+        : `New lead (${SERVICES[service].name}): ${lead.company} (${lead.name})`),
     html: leadHtml(lead, fields, request),
     attachments: resume ? [resume] : [],
   };
@@ -175,6 +183,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
   } catch (err) {
     console.error("lead_send_failed", err.message);
     return reply(502, { ok: false, error: "send_failed" });
+  }
+  // Possible spam: delivered (marked) above so no real lead is lost, but don't email the
+  // address it gave, add it to the list, or copy it into the OneDrive sheets.
+  if (suspicious) {
+    console.log("spam_flagged", suspicious);
+    return reply(200, { ok: true });
   }
   // Copy to the OneDrive sheets in the background; the email above is the record of last resort.
   const saving = saveSubmission(env, lead, SERVICES[service].name, resume).catch((err) => console.error("records_failed", err.message));
