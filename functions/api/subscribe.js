@@ -3,7 +3,7 @@
 
 import { EMAIL_RE, badOrigin, tooLarge } from "../lib/mail.js";
 import { sendOptIn, isSubscribed } from "../lib/list.js";
-import { badTiming, rateLimited } from "../lib/spam.js";
+import { badTiming, rateLimited, failsTurnstile } from "../lib/spam.js";
 
 export async function onRequestPost({ request, env }) {
   const wantsJson = (request.headers.get("accept") || "").includes("application/json");
@@ -28,6 +28,8 @@ export async function onRequestPost({ request, env }) {
   // Spam traps (functions/lib/spam.js): bots get a normal reply and no email is sent.
   const timing = badTiming(form, 1500);
   if (timing === "no_timestamp" || timing === "stale") return reply(400, { ok: false, error: "bad_request" });
+  const turnstile = await failsTurnstile(env, form, request);
+  if (turnstile) return (console.log("spam_blocked", turnstile), reply(400, { ok: false, error: "verification_failed" }));
   if (form.get("website") || timing || (await rateLimited(request, "subscribe"))) {
     console.log("spam_dropped", form.get("website") ? "honeypot" : timing || "rate_limit");
     return reply(200, { ok: true });

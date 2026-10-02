@@ -17,8 +17,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Jost:wght@400;500&family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/styles.css?v=7">
-<script src="/site.js?v=4" defer></script>
+<link rel="stylesheet" href="/styles.css?v=8">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="/site.js?v=5" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -50,6 +51,7 @@
       <input type="hidden" name="t" value="">
       <div class="field"><label for="u-email">Your email address</label><input id="u-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
       <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFMXoQqpKuiIp6UB" data-appearance="interaction-only" data-theme="dark" data-size="flexible"></div>
       <button class="btn btn-lime btn-lg" type="submit">Send Unsubscribe Link</button>
       <p class="form-status" role="status" aria-live="polite"></p>
     </form>
@@ -104,6 +106,7 @@
         <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="Your work email">
         <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
         <input type="hidden" name="t" value="">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFMXoQqpKuiIp6UB" data-appearance="interaction-only" data-theme="dark" data-size="flexible"></div>
         <button class="btn btn-lime" type="submit">Subscribe</button>
         <p class="signup-status small" role="status" aria-live="polite"></p>
       </form>

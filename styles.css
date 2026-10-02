@@ -341,3 +341,8 @@ main { display: block; }
 .job-chips li { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: .86rem; color: var(--text); }
 .job-detail .job-chips { margin-top: 18px; }
 .job-talent { max-width: 72ch; }
+
+/* Cloudflare Turnstile ("are you human" check): invisible unless it needs the visitor. */
+.cf-turnstile { width: 100%; }
+.cf-turnstile:has(iframe[style*="display: none"]), .cf-turnstile:empty { display: none; }
+.signup .cf-turnstile { flex-basis: 100%; order: 3; }
