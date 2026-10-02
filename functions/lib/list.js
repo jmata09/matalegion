@@ -9,6 +9,7 @@
 // signing key; defaults to the Resend key).
 
 import { DEFAULT_MAILBOX, PUBLIC_EMAIL, SITE, send, esc, signedUrl } from "./mail.js";
+import { emailShell, button, P, LINK } from "./email-layout.js";
 
 const SEGMENT_NAME = "Stay in the Know";
 const CONFIRM_DAYS = 7;
@@ -103,7 +104,7 @@ export async function sendWelcome(env, email) {
       body: `<p style="${P}">You'll get practical insights from operators: what's driving guest scores, how to get through a PIP or renovation without losing revenue, and what's working in hotels and restaurants right now. No spam, and we never share your address.</p>
 <p style="${P}">Have a property that needs help now? Reply to this email or book a free 1-hour consultation.</p>`,
       button: { href: `${SITE}/contact`, label: "Talk to us" },
-      footer: `Changed your mind? <a href="${unsub}" style="color:#555">Unsubscribe</a> at any time.`,
+      footer: `Changed your mind? <a href="${unsub}" style="${LINK}">Unsubscribe</a> at any time.`,
     }),
   });
 }
@@ -136,32 +137,7 @@ export async function notifyNewSubscriber(env, email, source) {
   });
 }
 
-const P = "margin:0 0 18px;font:16px/1.6 Arial,sans-serif;color:#333";
-
-function shell({ preheader, eyebrow, title, body, button, footer }) {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#F2F2EF">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0">${preheader}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F2EF"><tr><td align="center" style="padding:28px 12px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden">
-<tr><td style="background:#173A2B;padding:22px 32px">
-  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-  <td style="width:34px;height:34px;background:#C8E86A;border-radius:9px;text-align:center;font:900 19px/34px Arial,sans-serif;color:#173A2B">M</td>
-  <td style="padding-left:12px;font:900 17px Arial,sans-serif;letter-spacing:.06em;color:#ffffff">MATALEGION</td>
-  </tr></table>
-</td></tr>
-<tr><td style="padding:34px 32px 10px">
-  <p style="margin:0 0 6px;font:700 12px Arial,sans-serif;letter-spacing:.14em;color:#3F6B2A;text-transform:uppercase">${eyebrow}</p>
-  <h1 style="margin:0 0 16px;font:900 28px/1.15 Arial,sans-serif;color:#173A2B">${title}</h1>
-  ${body}
-  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 24px"><tr><td style="background:#C8E86A;border-radius:999px">
-  <a href="${button.href}" style="display:inline-block;padding:14px 26px;font:800 15px Arial,sans-serif;color:#173A2B;text-decoration:none">${button.label} &rarr;</a>
-  </td></tr></table>
-</td></tr>
-<tr><td style="padding:20px 32px;border-top:1px solid #ECECE8;font:13px/1.6 Arial,sans-serif;color:#777">${footer}</td></tr>
-<tr><td style="background:#173A2B;padding:20px 32px;font:13px/1.6 Arial,sans-serif;color:#A8A8A0">
-  <strong style="color:#ffffff">The Matalegion Group</strong> · Matalegion Inc., Las Vegas, NV, USA<br>
-  <a href="${SITE}" style="color:#C8E86A;text-decoration:none">thematalegion.com</a>
-</td></tr>
-</table>
-</td></tr></table></body></html>`;
+// Mailing-list emails use the site's shared branded layout, with one call-to-action button.
+function shell({ preheader, eyebrow, title, body, button: cta, footer }) {
+  return emailShell({ preheader, eyebrow, title, body: body + button(cta), note: footer });
 }
