@@ -60,6 +60,7 @@ jobs:
         run: |
           mkdir dist
           cp *.html styles.css site.js favicon.svg _redirects _headers robots.txt dist/
+          cp -r email dist/
           ls dist
 
       - name: Ensure Pages project exists
